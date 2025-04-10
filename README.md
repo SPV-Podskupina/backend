@@ -11,4 +11,5 @@
 ⚠️Ensure you have the following installed:
 - [Node.js](https://nodejs.org/) (version >= 12.0.0)
 - [MongoDB](https://www.mongodb.com/) (or use MongoDB Atlas for cloud database)
+- .env file that contains mongo URL as DB_URI and JWT token as JWT_TOKEN
 
