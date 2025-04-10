@@ -29,7 +29,7 @@ module.exports = {
     show: function (req, res) {
         var id = req.params.id;
 
-        GameModel.findOne({_id: id}, function (err, game) {
+        GameModel.findOne({ _id: id }, function (err, game) {
             if (err) {
                 return res.status(500).json({
                     message: 'Error when getting game.',
@@ -52,14 +52,14 @@ module.exports = {
      */
     create: function (req, res) {
         var game = new GameModel({
-			game_type : req.body.game_type,
-			user_id : req.body.user_id,
-			session_start : req.body.session_start,
-			session_end : req.body.session_end,
-			total_bet : req.body.total_bet,
-			balance_start : req.body.balance_start,
-			balance_end : req.body.balance_end,
-			rounds_played : req.body.rounds_played
+            type: req.body.type,
+            user_id: req.body.user_id,
+            session_start: req.body.session_start,
+            session_end: req.body.session_end,
+            total_bet: req.body.total_bet,
+            balance_start: req.body.balance_start,
+            balance_end: req.body.balance_end,
+            rounds_played: req.body.rounds_played
         });
 
         game.save(function (err, game) {
@@ -80,7 +80,7 @@ module.exports = {
     update: function (req, res) {
         var id = req.params.id;
 
-        GameModel.findOne({_id: id}, function (err, game) {
+        GameModel.findOne({ _id: id }, function (err, game) {
             if (err) {
                 return res.status(500).json({
                     message: 'Error when getting game',
@@ -94,15 +94,15 @@ module.exports = {
                 });
             }
 
-            game.game_type = req.body.game_type ? req.body.game_type : game.game_type;
-			game.user_id = req.body.user_id ? req.body.user_id : game.user_id;
-			game.session_start = req.body.session_start ? req.body.session_start : game.session_start;
-			game.session_end = req.body.session_end ? req.body.session_end : game.session_end;
-			game.total_bet = req.body.total_bet ? req.body.total_bet : game.total_bet;
-			game.balance_start = req.body.balance_start ? req.body.balance_start : game.balance_start;
-			game.balance_end = req.body.balance_end ? req.body.balance_end : game.balance_end;
-			game.rounds_played = req.body.rounds_played ? req.body.rounds_played : game.rounds_played;
-			
+            game.type = req.body.type ? req.body.type : game.type;
+            game.user_id = req.body.user_id ? req.body.user_id : game.user_id;
+            game.session_start = req.body.session_start ? req.body.session_start : game.session_start;
+            game.session_end = req.body.session_end ? req.body.session_end : game.session_end;
+            game.total_bet = req.body.total_bet ? req.body.total_bet : game.total_bet;
+            game.balance_start = req.body.balance_start ? req.body.balance_start : game.balance_start;
+            game.balance_end = req.body.balance_end ? req.body.balance_end : game.balance_end;
+            game.rounds_played = req.body.rounds_played ? req.body.rounds_played : game.rounds_played;
+
             game.save(function (err, game) {
                 if (err) {
                     return res.status(500).json({
