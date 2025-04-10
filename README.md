@@ -2,7 +2,7 @@
 
 ℹ️This repository contains the code for a User Management System with features such as user registration, login, logout, password management, user updates, and more. It is built using Node.js, Express, and MongoDB (via Mongoose) for the backend and implements JWT-based authentication for secure access to protected endpoints.
 
-## For more information check out wiki
+## For more information check out our wiki
 
 📝[SPV Casino Wiki](https://github.com/SPV-Podskupina/backend)
 
