@@ -123,43 +123,33 @@ module.exports = {
     /**
      * gameController.update()
      */
-    update: function (req, res) {
-        var id = req.params.id;
+    update: async function (req, res) {
+        const id = req.params.id;
 
-        GameModel.findOne({ _id: id }, function (err, game) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when getting game',
-                    error: err
-                });
-            }
-
+        try {
+            const game = await GameModel.findById(id);
             if (!game) {
-                return res.status(404).json({
-                    message: 'No such game'
-                });
+                return res.status(404).json({ message: 'No such game' });
             }
 
-            game.type = req.body.type ? req.body.type : game.type;
-            game.user_id = req.body.user_id ? req.body.user_id : game.user_id;
-            game.session_start = req.body.session_start ? req.body.session_start : game.session_start;
-            game.session_end = req.body.session_end ? req.body.session_end : game.session_end;
-            game.total_bet = req.body.total_bet ? req.body.total_bet : game.total_bet;
-            game.balance_start = req.body.balance_start ? req.body.balance_start : game.balance_start;
-            game.balance_end = req.body.balance_end ? req.body.balance_end : game.balance_end;
-            game.rounds_played = req.body.rounds_played ? req.body.rounds_played : game.rounds_played;
+            // Only update fields that are provided
+            game.type = req.body.type ?? game.type;
+            game.user_id = req.body.user_id ?? game.user_id;
+            game.session_start = req.body.session_start ?? game.session_start;
+            game.session_end = req.body.session_end ?? game.session_end;
+            game.total_bet = req.body.total_bet ?? game.total_bet;
+            game.balance_start = req.body.balance_start ?? game.balance_start;
+            game.balance_end = req.body.balance_end ?? game.balance_end;
+            game.rounds_played = req.body.rounds_played ?? game.rounds_played;
 
-            game.save(function (err, game) {
-                if (err) {
-                    return res.status(500).json({
-                        message: 'Error when updating game.',
-                        error: err
-                    });
-                }
-
-                return res.json(game);
+            const updatedGame = await game.save();
+            return res.json(updatedGame);
+        } catch (err) {
+            return res.status(500).json({
+                message: 'Error when updating game.',
+                error: err
             });
-        });
+        }
     },
 
     /**
