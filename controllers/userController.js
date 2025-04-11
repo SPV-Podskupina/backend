@@ -1,4 +1,3 @@
-const { login, logout } = require('../../../../Desktop/back-end/controllers/userController.js');
 var UserModel = require('../models/userModel.js');
 var bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');

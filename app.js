@@ -7,6 +7,8 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
 
+
+
 // Connect to MongoDB
 mongoose.connect(process.env.DB_URI, {
   useNewUrlParser: true,
@@ -48,5 +50,8 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.json(err);
 });
+
+const port = process.env.PORT || 4000;
+app.listen(port, () => console.log(`Server running on ${port}`));
 
 module.exports = app;
