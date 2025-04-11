@@ -97,28 +97,27 @@ module.exports = {
     /**
      * gameController.create()
      */
-    create: function (req, res) {
-        var game = new GameModel({
-            type: req.body.type,
-            user_id: req.body.user_id,
-            session_start: req.body.session_start,
-            session_end: req.body.session_end,
-            total_bet: req.body.total_bet,
-            balance_start: req.body.balance_start,
-            balance_end: req.body.balance_end,
-            rounds_played: req.body.rounds_played
-        });
+    create: async function (req, res) {
+        try {
+            const game = new GameModel({
+                type: req.body.type,
+                user_id: req.body.user_id,
+                session_start: req.body.session_start,
+                session_end: req.body.session_end,
+                total_bet: req.body.total_bet,
+                balance_start: req.body.balance_start,
+                balance_end: req.body.balance_end,
+                rounds_played: req.body.rounds_played
+            });
 
-        game.save(function (err, game) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when creating game',
-                    error: err
-                });
-            }
-
-            return res.status(201).json(game);
-        });
+            const savedGame = await game.save();
+            return res.status(201).json(savedGame);
+        } catch (err) {
+            return res.status(500).json({
+                message: 'Error when creating game',
+                error: err
+            });
+        }
     },
 
     /**
