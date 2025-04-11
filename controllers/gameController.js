@@ -155,18 +155,17 @@ module.exports = {
     /**
      * gameController.remove()
      */
-    remove: function (req, res) {
-        var id = req.params.id;
+    remove: async function (req, res) {
+        const id = req.params.id;
 
-        GameModel.findByIdAndRemove(id, function (err, game) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when deleting the game.',
-                    error: err
-                });
-            }
-
-            return res.status(204).json();
-        });
+        try {
+            await GameModel.findByIdAndDelete(id);
+            return res.status(204).json(); // No content
+        } catch (err) {
+            return res.status(500).json({
+                message: 'Error when deleting the game.',
+                error: err
+            });
+        }
     }
 };

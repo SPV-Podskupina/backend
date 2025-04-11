@@ -62,6 +62,6 @@ router.put('/:id', JWTCheck.authenticateToken, gameController.update);
 /*
  * DELETE
  */
-router.delete('/:id', gameController.remove);
+router.delete('/:id', JWTCheck.authenticateToken, gameController.remove);
 
 module.exports = router;
