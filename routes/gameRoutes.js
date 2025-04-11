@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var gameController = require('../controllers/gameController.js');
+var JWTCheck = require('../middleware/JWTCheck.js')
 
 /*
  * GET
@@ -13,14 +14,50 @@ router.get('/', gameController.list);
 router.get('/:id', gameController.show);
 
 /*
+ * GET
+ */
+// query parameters: start_date, end_date 
+router.get('/date', gameController.showByDate);
+
+/*
+ * GET
+ */
+// query parameters: min, max
+router.get('/duration', gameController.showByDuration);
+
+/*
+ * GET
+ */
+// query parameters: type
+router.get('/type', gameController.showByType);
+
+/*
+ * GET
+ */
+// query parameters: min, max
+router.get('/bet', gameController.showByBet);
+
+/*
+ * GET
+ */
+// query parameters: min, max
+router.get('/winning', gameController.showByWinning);
+
+/*
+ * GET
+ */
+// query parameters: min, max
+router.get('/rounds', gameController.showByRounds);
+
+/*
  * POST
  */
-router.post('/', gameController.create);
+router.post('/', JWTCheck.authenticateToken, gameController.create);
 
 /*
  * PUT
  */
-router.put('/:id', gameController.update);
+router.put('/:id', JWTCheck.authenticateToken, gameController.update);
 
 /*
  * DELETE

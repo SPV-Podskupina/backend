@@ -11,6 +11,11 @@ module.exports = {
      * gameController.list()
      */
     list: function (req, res) {
+        return res.status(200).json({
+            message: "No games available"
+        });
+
+
         GameModel.find(function (err, games) {
             if (err) {
                 return res.status(500).json({
@@ -46,6 +51,48 @@ module.exports = {
             return res.json(game);
         });
     },
+
+    /**
+     * gameController.showByDate()
+     * 
+     * query paramaters: start_date, end_date
+     */
+    showByDate: function (req, res) { },
+
+    /**
+     * gameController.showByDuration()
+     * 
+     * query paramaters: min, max  
+     */
+    showByDuration: function (req, res) { },
+
+    /**
+     * gameController.showByType()
+     * 
+     * query paramater: type
+     */
+    showByType: function (req, res) { },
+
+    /**
+     * gameController.showByBet()
+     * 
+     * query paramaters: min, max
+     */
+    showByBet: function (req, res) { },
+
+    /**
+     * gameController.showByWinning()
+     * 
+     * query paramaters: min, max
+     */
+    showByWinning: function (req, res) { },
+
+    /**
+     * gameController.showByRounds()
+     * 
+     * query paramaters: min, max
+     */
+    showByRounds: function (req, res) { },
 
     /**
      * gameController.create()
