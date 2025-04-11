@@ -13,47 +13,58 @@ module.exports = {
     /**
      * userController.list()
      */
-    list: function (req, res, next) {
-        UserModel.find()
-            .populate('cosmetics')
-            .populate('friends')
-            .exec(function (err, users) {
-                if (err) {
-                    return res.status(500).json({
-                        message: 'Error when getting users.',
-                        error: err
-                    });
-                }
-
-                return res.json(users);
-            });
+    list: async function (req, res, next) {
+        try{
+            var users = await UserModel.find().populate('cosmetics').populate('friends');
+            return res.status(200).json(users);
+        } catch (err){
+            return res.status(500).json({
+                message: "Error getting users",
+                error: err
+            })
+        }
     },
 
     /**
      * userController.show()
      */
-    show: function (req, res, next) {
+    show: async function (req, res, next) {
         var id = req.params.id;
 
-        UserModel.findOne({ _id: id })
-            .populate('cosmetics')
-            .populate('friends')
-            .exec(function (err, user) {
-                if (err) {
-                    return res.status(500).json({
-                        message: 'Error when getting user.',
-                        error: err
-                    });
-                }
+        try{
+            var user = await UserModel.findOne({ _id: id }).populate('cosmetics').populate('friends')
 
-                if (!user) {
-                    return res.status(404).json({
+            if (!user) {
+                return res.status(404).json({
                         message: 'No such user'
-                    });
-                }
+                });
+            }
 
-                return res.json(user);
+            return res.json(user);
+        } catch (err){
+            return res.status(500).json({
+                message: 'Error when getting user.',
+                error: err
             });
+        } 
+    }, 
+
+    getTopBalance: async function (req, res, next) {
+        var count = req.params.count;
+        
+        console.log(count);
+
+        try {
+            var users = await UserModel.find().sort({balance: -1}).limit(count);
+
+            return res.status(200).json(users);
+
+        } catch (err) {
+            return res.status(500).json({
+                message: 'Error getting users.',
+                error: err
+            });
+        }
     },
 
     /**

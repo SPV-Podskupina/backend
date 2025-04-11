@@ -7,10 +7,7 @@ var uniqueUsernameCheck = require('../middleware/uniqueUsernameCheck.js')
  * GET
  */
 router.get('/', userController.list);
-
-/*
- * GET
- */
+router.get('/get_top_balance/:count', userController.getTopBalance);
 router.get('/:id', userController.show);
 
 /*
@@ -20,6 +17,7 @@ router.post('/', userController.create);
 router.post('/register', uniqueUsernameCheck, userController.create);
 router.post('/login', userController.login);
 router.post('/logout', JWTCheck.authenticateToken, userController.logout);
+
 /*
  * PUT
  */
