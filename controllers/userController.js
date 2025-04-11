@@ -67,16 +67,6 @@ module.exports = {
                     message: 'Please provide a username, password and mail',
                 });
             }
-    
-            var existingUser = await UserModel.findOne({username: req.body.username})
-
-            if(existingUser) {
-                return res.status(401).json({
-                    message: 'Username already taken',
-                    username: existingUser.username
-                });
-            }
-
             
             // Hash the password
             var password_hash = await bcrypt.hash(req.body.password, 10);
@@ -132,7 +122,7 @@ module.exports = {
 
     logout: async function (req, res, next) {
         if(!req.user){
-            return res.status(403).json({
+            return res.status(401).json({
                 message: 'Not logged in',
                 error: err
             });

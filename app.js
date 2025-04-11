@@ -17,7 +17,8 @@ mongoose.connect(process.env.DB_URI, {
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/userRoutes');
-const cosmeticRoutes = require('./routes/userRoutes'); // Looks like this might be a duplicate
+const cosmeticRoutes = require('./routes/cosmeticRoutes');
+const gameRoutes = require('./routes/gameRoutes')
 
 const app = express();
 
@@ -28,12 +29,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Removed express-session and connect-mongo logic
-
 // Routes
 app.use('/', indexRouter);
 app.use('/user', usersRouter);
 app.use('/cosmetic', cosmeticRoutes);
+app.use('/game', gameRoutes)
 
 // 404 handler
 app.use(function (req, res, next) {
