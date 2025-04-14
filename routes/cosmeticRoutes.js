@@ -1,30 +1,31 @@
 var express = require('express');
 var router = express.Router();
 var cosmeticController = require('../controllers/cosmeticController.js');
+var JWTCheck = require('../middleware/JWTCheck.js')
 
 /*
  * GET
  */
-router.get('/', cosmeticController.list);
+router.get('/', JWTCheck.authenticateToken, cosmeticController.list);
 
 /*
  * GET
  */
-router.get('/:id', cosmeticController.show);
+router.get('/:id', JWTCheck.authenticateToken, cosmeticController.show);
 
 /*
  * POST
  */
-router.post('/', cosmeticController.create);
+router.post('/', JWTCheck.authenticateToken, cosmeticController.create);
 
 /*
  * PUT
  */
-router.put('/:id', cosmeticController.update);
+router.put('/:id', JWTCheck.authenticateToken, cosmeticController.update);
 
 /*
  * DELETE
  */
-router.delete('/:id', cosmeticController.remove);
+router.delete('/:id', JWTCheck.authenticateToken, cosmeticController.remove);
 
 module.exports = router;
