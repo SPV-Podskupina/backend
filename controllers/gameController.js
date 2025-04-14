@@ -42,7 +42,30 @@ module.exports = {
      * 
      * query paramaters: start_date, end_date
      */
-    showByDate: function (req, res) { },
+    showByDate: async function (req, res) {
+        const { minDate, maxDate } = req.query
+        console.log(minDate, maxDate)
+        let filter = {}
+        if (minDate || maxDate) {
+            const dateFilter = {};
+
+            if (minDate) dateFilter.$gte = new Date(minDate)
+            if (maxDate) dateFilter.$lte = new Date(maxDate)
+
+            if (minDate && !maxDate) dateFilter.$lte = new Date();
+
+            filter.session_start = dateFilter;
+        }
+
+        try {
+            const games = await GameModel.find(filter);
+            return res.status(200).json(games)
+        } catch (err) {
+            return res.status(500).json({
+                message: "Error fetching games by date."
+            })
+        }
+    },
 
     /**
      * gameController.showByDuration()
