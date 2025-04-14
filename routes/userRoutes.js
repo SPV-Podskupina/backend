@@ -8,8 +8,10 @@ var checkAge = require('../middleware/ageCheck.js')
  * GET
  */
 router.get('/', userController.list);                                           // get
+router.get('/balance', JWTCheck.authenticateToken, userController.getBalance);
 router.get('/get_top_balance/:count', userController.getTopBalance);            // get_top_balance
 router.get('/:id', userController.show);                                        // get_all
+
 
 /*
  * POST
@@ -21,7 +23,6 @@ router.post('/add_friend', JWTCheck.authenticateToken, userController.addFriend)
 router.post('/remove_friend', JWTCheck.authenticateToken, userController.removeFriend);
 router.post('/add_balance', JWTCheck.authenticateToken, userController.addBalance);
 router.post('/remove_balance', JWTCheck.authenticateToken, userController.removeBalance);
-router.post('/get_balance', JWTCheck.authenticateToken, userController.getBalance);
 router.post('/buy_item', JWTCheck.authenticateToken, userController.buyItem);
 
 /*
