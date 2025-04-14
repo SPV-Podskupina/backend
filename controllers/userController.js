@@ -86,13 +86,13 @@ module.exports = {
             var user = new UserModel({
                 username: req.body.username,
                 password: password_hash,
-                picture_path: req.body.picture_path || "../resources/profile_pictures/default.png",
+                picture_path: req.file ? req.file.filename : "default",
                 mail: req.body.mail,
                 joined: Date.now(),
-                admin: req.body.admin || false,
-                balance: req.body.balance || 0,
-                cosmetics: req.body.cosmetics || [],
-                friends: req.body.friends || []
+                admin: req.body.admin ?? false,
+                balance: req.body.balance ?? 0,
+                cosmetics: req.body.cosmetics ?? [],
+                friends: req.body.friends ?? []
             });
 
             // Create JWT token

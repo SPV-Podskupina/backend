@@ -37,6 +37,10 @@ app.use('/user', usersRouter);
 app.use('/cosmetic', cosmeticRoutes);
 app.use('/game', gameRoutes)
 
+// Profile Pictures
+app.use('/profile_pictures', express.static('resources/profile_pictures'));
+
+
 // 404 handler
 app.use(function (req, res, next) {
   next(createError(404));

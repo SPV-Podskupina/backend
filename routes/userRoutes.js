@@ -4,6 +4,8 @@ var userController = require('../controllers/userController.js');
 var JWTCheck = require('../middleware/JWTCheck.js')
 var uniqueUsernameCheck = require('../middleware/uniqueUsernameCheck.js')
 var checkAge = require('../middleware/ageCheck.js')
+var multer = require('multer');
+const upload = multer({dest: './resources/profile_pictures'});
 /*
  * GET
  */
@@ -16,7 +18,7 @@ router.get('/:id', userController.show);                                        
 /*
  * POST
  */
-router.post('/register', uniqueUsernameCheck, userController.create);           // register
+router.post('/register', uniqueUsernameCheck, upload.single('profile_puicture'), userController.create);           // register
 router.post('/login', userController.login);                                    // login
 router.post('/logout', JWTCheck.authenticateToken, userController.logout);      // logout
 router.post('/add_friend', JWTCheck.authenticateToken, userController.addFriend);
