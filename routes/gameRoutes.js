@@ -11,11 +11,6 @@ router.get('/', gameController.list);
 /*
  * GET
  */
-router.get('/:id', gameController.show);
-
-/*
- * GET
- */
 // query parameters: start_date, end_date 
 router.get('/date', gameController.showByDate);
 
@@ -48,6 +43,11 @@ router.get('/winning', gameController.showByWinning);
  */
 // query parameters: min, max
 router.get('/rounds', gameController.showByRounds);
+
+/*
+ * GET
+ */
+router.get('/:id', gameController.show);
 
 /*
  * POST

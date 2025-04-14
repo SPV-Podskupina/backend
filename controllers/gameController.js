@@ -10,22 +10,15 @@ module.exports = {
     /**
      * gameController.list()
      */
-    list: function (req, res) {
-        return res.status(200).json({
-            message: "No games available"
-        });
-
-
-        GameModel.find(function (err, games) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when getting game.',
-                    error: err
-                });
-            }
-
-            return res.json(games);
-        });
+    list: async function (req, res) {
+        try {
+            const games = await GameModel.find({});
+            return res.status(200).json(games);
+        } catch (err) {
+            return res.status(500).json({
+                message: "Error fetching games."
+            })
+        }
     },
 
     /**
