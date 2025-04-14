@@ -77,15 +77,15 @@ module.exports = {
                     message: 'Please provide a username, password and mail',
                 });
             }
-            
+
             // Hash the password
             var password_hash = await bcrypt.hash(req.body.password, 10);
-    
+
             // Create the user
             var user = new UserModel({
                 username: req.body.username,
                 password: password_hash,
-                picture_path: req.body.picture_path || "../resources/profile_pictures/default.png", 
+                picture_path: req.body.picture_path || "../resources/profile_pictures/default.png",
                 mail: req.body.mail,
                 joined: Date.now(),
                 admin: req.body.admin || false,
@@ -93,20 +93,20 @@ module.exports = {
                 cosmetics: req.body.cosmetics || [],
                 friends: req.body.friends || []
             });
-    
+
             // Create JWT token
 
             const jwt_token = jwt.sign({ user_id: user._id }, process.env.JWT_KEY, { expiresIn: '1h' });
 
             // Save the user
             await user.save();  // Use await instead of a callback
-    
+
             // Send success response with the token
             return res.status(201).json({
                 message: "Created user successfuly",
                 token: jwt_token
             });
-    
+
         } catch (err) {
             // Handle any errors
             return res.status(500).json({
@@ -115,11 +115,11 @@ module.exports = {
             });
         }
     },
-    
+
 
     login: function (req, res, next) {
-        UserModel.authenticate(req.body.username, req.body.password, function(err, user){
-            if(err || !user){
+        UserModel.authenticate(req.body.username, req.body.password, function (err, user) {
+            if (err || !user) {
                 var err = new Error('Wrong username or password');
                 err.status = 401;
                 return next(err);
@@ -127,11 +127,11 @@ module.exports = {
             const jwt_token = jwt.sign({ user_id: user._id }, process.env.JWT_KEY, { expiresIn: '1h' });
 
             res.json({ token: jwt_token, user: user });
-        });    
+        });
     },
 
     logout: async function (req, res, next) {
-        if(!req.user){
+        if (!req.user) {
             return res.status(401).json({
                 message: 'Not logged in',
                 error: err
@@ -177,17 +177,17 @@ module.exports = {
      */
     update: async function (req, res, next) {
         var id = req.params.id;
-    
+
         try {
             // Find the user by ID
             const user = await UserModel.findOne({ _id: id });
-    
+
             if (!user) {
                 return res.status(404).json({
                     message: 'No such user'
                 });
             }
-    
+
             // Update user fields with new data, if provided
             user.username = req.body.username ?? user.username;
             user.password = req.body.password ?? user.password;
@@ -198,13 +198,13 @@ module.exports = {
             user.balance = req.body.balance ?? user.balance;
             user.cosmetics = req.body.cosmetics ?? user.cosmetics;
             user.friends = req.body.friends ?? user.friends;
-    
+
             // Save the updated user
             await user.save();
-    
+
             // Respond with the updated user
             return res.json(user);
-    
+
         } catch (err) {
             return res.status(500).json({
                 message: 'Error when updating user.',

@@ -3,6 +3,7 @@ var router = express.Router();
 var userController = require('../controllers/userController.js');
 var JWTCheck = require('../middleware/JWTCheck.js')
 var uniqueUsernameCheck = require('../middleware/uniqueUsernameCheck.js')
+var checkAge = require('../middleware/ageCheck.js')
 /*
  * GET
  */
