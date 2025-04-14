@@ -147,6 +147,31 @@ module.exports = {
         });
     },
 
+    addFriend: async function (req, res, next) {
+
+    },
+
+    removeFriend: async function (req, res, next) {
+
+    },
+
+    addBalance: async function (req, res, next) {
+
+    },
+     
+    removeBalance: async function (req, res, next) {
+
+    },
+
+    getBalance: async function (req, res, next) {
+
+    },
+
+    buyItem: async function (req, res, next) {
+
+    },
+
+
     /**
      * userController.update()
      */
@@ -186,6 +211,10 @@ module.exports = {
                 error: err
             });
         }
+    },
+
+    resetPassword: async function (req, res, next){
+
     },
     
 
