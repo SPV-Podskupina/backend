@@ -24,25 +24,17 @@ module.exports = {
     /**
      * gameController.show()
      */
-    show: function (req, res) {
+    show: async function (req, res) {
         var id = req.params.id;
 
-        GameModel.findOne({ _id: id }, function (err, game) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when getting game.',
-                    error: err
-                });
-            }
-
-            if (!game) {
-                return res.status(404).json({
-                    message: 'No such game'
-                });
-            }
-
-            return res.json(game);
-        });
+        try {
+            const game = await GameModel.findById(id)
+            return res.status(200).json(game)
+        } catch (error) {
+            return res.status(500).json({
+                message: "Error fetching game."
+            })
+        }
     },
 
     /**
