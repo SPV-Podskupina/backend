@@ -1,7 +1,8 @@
 var UserModel = require('../models/userModel.js');
 var bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const JWTCheck = require('../middleware/JWTCheck.js')
+const JWTCheck = require('../middleware/JWTCheck.js');
+const { trusted } = require('mongoose');
 
 /**
  * userController.js
@@ -13,7 +14,7 @@ module.exports = {
     /**
      * userController.list()
      */
-    list: async function (req, res, next) {
+    list: async function (req, res) {
         try{
             var users = await UserModel.find().populate('cosmetics').populate('friends');
             return res.status(200).json(users);
@@ -28,7 +29,7 @@ module.exports = {
     /**
      * userController.show()
      */
-    show: async function (req, res, next) {
+    show: async function (req, res) {
         var id = req.params.id;
 
         try{
@@ -49,7 +50,7 @@ module.exports = {
         } 
     }, 
 
-    getTopBalance: async function (req, res, next) {
+    getTopBalance: async function (req, res) {
         var count = req.params.count;
         
         console.log(count);
@@ -70,7 +71,7 @@ module.exports = {
     /**
      * userController.create()
      */
-    create: async function (req, res, next) {
+    create: async function (req, res) {
         try {
             if (!req.body.password) {
                 return res.status(400).json({
@@ -117,7 +118,7 @@ module.exports = {
     },
 
 
-    login: function (req, res, next) {
+    login: function (req, res) {
         UserModel.authenticate(req.body.username, req.body.password, function (err, user) {
             if (err || !user) {
                 var err = new Error('Wrong username or password');
@@ -130,7 +131,7 @@ module.exports = {
         });
     },
 
-    logout: async function (req, res, next) {
+    logout: async function (req, res) {
         if (!req.user) {
             return res.status(401).json({
                 message: 'Not logged in',
@@ -147,27 +148,108 @@ module.exports = {
         });
     },
 
-    addFriend: async function (req, res, next) {
+    addFriend: async function (req, res) {
 
     },
 
-    removeFriend: async function (req, res, next) {
+    removeFriend: async function (req, res) {
 
     },
 
-    addBalance: async function (req, res, next) {
+    addBalance: async function (req, res) {
+        try {
+            if(isNaN(req.body.amount) || req.body.amount <= 0){
+                return res.status(400).json({
+                    message: 'Added balance must be positive'
+                })
+            }
 
+            var user = await UserModel.findByIdAndUpdate(req.user.user_id, {$inc: {balance: req.body.amount}}, {new: true})
+
+            return res.status(200).json({
+                message: 'Success adding balance',
+                balance: user.balance
+            });
+        } 
+        catch(err){
+            return res.status(500).json({
+                message: 'Error adding balance',
+                err: err
+            });
+        }
     },
      
-    removeBalance: async function (req, res, next) {
+    removeBalance: async function (req, res) {
+        try {
 
+            var user = await UserModel.findById(req.user.user_id);
+
+            if(!user){
+                return res.status(404).json({
+                    message: 'User not found'
+                })
+            }
+
+            if(isNaN(req.body.amount) || req.body.amount <= 0){
+                return res.status(400).json({
+                    message: 'Removed balance must be positive'
+                })
+            }
+
+            user.balance -= req.body.amount;
+
+            if(user.balance < 0){
+                return res.status(400).json({
+                    message: 'New balance must be positive',
+                });
+            } else {
+                await user.save();
+                
+                return res.status(200).json({
+                    message: 'Success removing balance',
+                    balance: user.balance
+                });
+            }
+
+
+            return res.status(200).json({
+                message: 'Success removing balance',
+                balance: user.balance
+            });
+        } 
+        catch(err){
+            return res.status(500).json({
+                message: 'Error removing balance',
+                err: err
+            });
+        }
     },
 
-    getBalance: async function (req, res, next) {
+    getBalance: async function (req, res) {
+        try {
+            var user = await UserModel.findById(req.user.user_id);
 
+
+            if(!user){
+                return res.status(404).json({
+                    message: 'User not found'
+                });
+            }
+
+            return res.status(200).json({
+                balance: user.balance
+            })
+
+        }
+        catch (err) {
+            return res.status(500).json({
+                message: 'Error getting balance',
+                err: err
+            })
+        }
     },
 
-    buyItem: async function (req, res, next) {
+    buyItem: async function (req, res) {
 
     },
 
@@ -175,7 +257,7 @@ module.exports = {
     /**
      * userController.update()
      */
-    update: async function (req, res, next) {
+    update: async function (req, res) {
         var id = req.params.id;
 
         try {
@@ -213,7 +295,7 @@ module.exports = {
         }
     },
 
-    resetPassword: async function (req, res, next){
+    resetPassword: async function (req, res){
 
     },
     
@@ -221,7 +303,7 @@ module.exports = {
     /**
      * userController.remove()
      */
-    remove: function (req, res, next) {
+    remove: function (req, res) {
         var id = req.params.id;
 
         UserModel.findByIdAndRemove(id, function (err, user) {
