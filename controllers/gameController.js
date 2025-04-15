@@ -132,7 +132,24 @@ module.exports = {
      * 
      * query paramaters: min, max
      */
-    showByBet: function (req, res) { },
+    showByBet: async function (req, res) {
+        const { minBet, maxBet } = req.query;
+
+        const betFilter = {};
+        if (minBet !== undefined) betFilter.$gte = parseFloat(minBet);
+        if (maxBet !== undefined) betFilter.$lte = parseFloat(maxBet);
+
+        const matchStage = Object.keys(betFilter).length > 0 ? { total_bet: betFilter } : {};
+
+        try {
+            const games = await GameModel.find(matchStage);
+            return res.status(200).json(games);
+        } catch (err) {
+            return res.status(500).json({
+                message: "Error fetching games by bet amount.",
+            });
+        }
+    },
 
     /**
      * gameController.showByWinning()
