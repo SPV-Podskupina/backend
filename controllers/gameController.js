@@ -139,10 +139,10 @@ module.exports = {
         if (min !== undefined) betFilter.$gte = parseFloat(min);
         if (max !== undefined) betFilter.$lte = parseFloat(max);
 
-        const matchStage = Object.keys(betFilter).length > 0 ? { total_bet: betFilter } : {};
+        const match = Object.keys(betFilter).length > 0 ? { total_bet: betFilter } : {};
 
         try {
-            const games = await GameModel.find(matchStage);
+            const games = await GameModel.find(match);
             return res.status(200).json(games);
         } catch (err) {
             return res.status(500).json({
@@ -196,7 +196,25 @@ module.exports = {
      * 
      * query paramaters: min, max
      */
-    showByRounds: function (req, res) { },
+    showByRounds: async function (req, res) {
+        const { min, max } = req.query;
+
+        const roundsFilter = {};
+        if (min !== undefined) roundsFilter.$gte = parseFloat(min);
+        if (max !== undefined) roundsFilter.$lte = parseFloat(max);
+
+        const match = Object.keys(roundsFilter).length > 0 ? { rounds_played: roundsFilter } : {};
+
+        try {
+            const games = await GameModel.find(match);
+            return res.status(200).json(games);
+        } catch (err) {
+            return res.status(500).json({
+                message: "Error fetching games by bet amount.",
+            });
+        }
+
+    },
 
     /**
      * gameController.create()
