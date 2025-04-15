@@ -121,9 +121,9 @@ module.exports = {
     login: function (req, res) {
         UserModel.authenticate(req.body.username, req.body.password, function (err, user) {
             if (err || !user) {
-                var err = new Error('Wrong username or password');
-                err.status = 401;
-                return next(err);
+                return res.status(403).json({
+                    message: 'Wrong username or password'
+                });
             }
             const jwt_token = jwt.sign({ user_id: user._id }, process.env.JWT_KEY, { expiresIn: '1h' });
 
@@ -170,8 +170,7 @@ module.exports = {
                 message: 'Success adding balance',
                 balance: user.balance
             });
-        } 
-        catch(err){
+        } catch(err){
             return res.status(500).json({
                 message: 'Error adding balance',
                 err: err
@@ -210,14 +209,7 @@ module.exports = {
                     balance: user.balance
                 });
             }
-
-
-            return res.status(200).json({
-                message: 'Success removing balance',
-                balance: user.balance
-            });
-        } 
-        catch(err){
+        } catch(err){
             return res.status(500).json({
                 message: 'Error removing balance',
                 err: err
@@ -240,8 +232,7 @@ module.exports = {
                 balance: user.balance
             })
 
-        }
-        catch (err) {
+        } catch (err) {
             return res.status(500).json({
                 message: 'Error getting balance',
                 err: err
@@ -273,7 +264,7 @@ module.exports = {
             // Update user fields with new data, if provided
             user.username = req.body.username ?? user.username;
             user.password = req.body.password ?? user.password;
-            user.picture_path = req.body.picture_path ?? user.picture_path;
+            user.picture_path = req.file.filename ?? user.picture_path;
             user.mail = req.body.mail ?? user.mail;
             user.date = req.body.date ?? user.date;
             user.admin = req.body.admin ?? user.admin;
@@ -296,25 +287,56 @@ module.exports = {
     },
 
     resetPassword: async function (req, res){
+        try {
+            var user = await UserModel.findById(req.user.user_id);
 
+            if (!user) {
+                return res.status(404).json({
+                    message: 'No such user'
+                });
+            }
+
+            const isMatch = await bcrypt.compare(req.body.old_password, user.password);
+
+            if(!isMatch){
+                return res.status(403).json({
+                    message: "Mismatched passwords."
+                });
+            } else {
+                user.password = await bcrypt.hash(req.body.new_password, 10);
+
+                await user.save()
+
+                return res.status(200).json({
+                    message: 'Success updating password'
+                })
+            }
+
+        } catch (err) {
+            return res.status(500).json({
+                message: 'Error when changing password'
+            })
+        }
     },
     
 
     /**
      * userController.remove()
      */
-    remove: function (req, res) {
-        var id = req.params.id;
+    remove: async function (req, res) {
+        try{
+            var id = req.params.id;
 
-        UserModel.findByIdAndRemove(id, function (err, user) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when deleting the user.',
-                    error: err
-                });
-            }
+            await UserModel.findByIdAndDelete(id);
 
-            return res.status(204).json();
-        });
+            return res.status(200).json({
+                message: 'Success deleting user'
+            });
+        } catch (err){
+            return res.status(500).json({
+                message: 'Error deleting user'
+            })
+        }
+
     }
 };
