@@ -9,6 +9,7 @@ const upload = multer({dest: './resources/profile_pictures'});
 /*
  * GET
  */
+
 router.get('/', userController.list);                                           // get
 router.get('/balance', JWTCheck.authenticateToken, userController.getBalance);
 router.get('/get_top_balance/:count', userController.getTopBalance);            // get_top_balance
