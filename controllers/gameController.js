@@ -40,18 +40,18 @@ module.exports = {
     /**
      * gameController.showByDate()
      * 
-     * query paramaters: sessionStart, sessionEnd
+     * query paramaters: start, start
      */
     showBySession: async function (req, res) {
-        const { sessionStart, sessionEnd } = req.query
+        const { start, end } = req.query
         const filter = {}
-        if (sessionStart || sessionEnd) {
+        if (start || end) {
             const sessionFilter = {};
 
-            if (sessionStart) sessionFilter.$gte = new Date(sessionStart)
-            if (sessionEnd) sessionFilter.$lte = new Date(sessionEnd)
+            if (start) sessionFilter.$gte = new Date(start)
+            if (end) sessionFilter.$lte = new Date(end)
 
-            if (sessionStart && !sessionEnd) sessionFilter.$lte = new Date();
+            if (start && !end) sessionFilter.$lte = new Date();
 
             filter.session_start = sessionFilter;
         }
@@ -69,13 +69,13 @@ module.exports = {
     /**
      * gameController.showByDuration()
      * 
-     * query paramaters: minDuration, maxDuration  
+     * query paramaters: min, max  
      */
     showByDuration: async function (req, res) {
-        const { minDuration, maxDuration } = req.query
+        const { min, max } = req.query
 
-        const minDurationMs = minDuration ? parseInt(minDuration) * 60 * 1000 : null;
-        const maxDurationMs = maxDuration ? parseInt(maxDuration) * 60 * 1000 : null;
+        const minDurationMs = min ? parseInt(min) * 60 * 1000 : null;
+        const maxDurationMs = max ? parseInt(max) * 60 * 1000 : null;
 
         const durationFilter = {};
         if (minDurationMs !== null) durationFilter.$gte = minDurationMs;
@@ -133,11 +133,11 @@ module.exports = {
      * query paramaters: min, max
      */
     showByBet: async function (req, res) {
-        const { minBet, maxBet } = req.query;
+        const { min, max } = req.query;
 
         const betFilter = {};
-        if (minBet !== undefined) betFilter.$gte = parseFloat(minBet);
-        if (maxBet !== undefined) betFilter.$lte = parseFloat(maxBet);
+        if (min !== undefined) betFilter.$gte = parseFloat(min);
+        if (max !== undefined) betFilter.$lte = parseFloat(max);
 
         const matchStage = Object.keys(betFilter).length > 0 ? { total_bet: betFilter } : {};
 

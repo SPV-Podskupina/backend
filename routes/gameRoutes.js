@@ -11,7 +11,7 @@ router.get('/', gameController.list);
 /*
  * GET
  */
-// query parameters: sessionStart, sessionEnd  
+// query parameters: start, end  
 router.get('/session', gameController.showBySession);
 
 /*
@@ -23,7 +23,6 @@ router.get('/duration', gameController.showByDuration);
 /*
  * GET
  */
-// query parameters: type
 router.get('/type/:type', gameController.showByType);
 
 /*
