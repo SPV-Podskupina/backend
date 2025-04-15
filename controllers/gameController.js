@@ -156,7 +156,40 @@ module.exports = {
      * 
      * query paramaters: min, max
      */
-    showByWinning: function (req, res) { },
+    showByWinning: async function (req, res) {
+        const { min, max } = req.query;
+
+        // Parse winnings range
+        const minVal = min !== undefined ? parseFloat(min) : null;
+        const maxVal = max !== undefined ? parseFloat(max) : null;
+
+        // Build winnings filter
+        const winFilter = {};
+        if (minVal !== null) winFilter.$gte = minVal;
+        if (maxVal !== null) winFilter.$lte = maxVal;
+
+        try {
+            const games = await GameModel.aggregate([
+                {
+                    $addFields: {
+                        winnings: {
+                            $subtract: ['$balance_end', '$balance_start']
+                        }
+                    }
+                },
+                ...(Object.keys(winFilter).length > 0
+                    ? [{ $match: { winnings: winFilter } }]
+                    : [])
+            ]);
+
+            return res.status(200).json(games);
+        } catch (err) {
+            return res.status(500).json({
+                message: "Error fetching games by winnings.",
+                error: err.message
+            });
+        }
+    },
 
     /**
      * gameController.showByRounds()
