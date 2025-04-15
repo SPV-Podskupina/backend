@@ -30,8 +30,8 @@ router.post('/buy_item', JWTCheck.authenticateToken, userController.buyItem);
 /*
  * PUT
  */
-router.put('/:id', userController.update);                                      // update
-router.put('/reset_password', userController.resetPassword);                    // reset_password
+router.put('/reset_password', JWTCheck.authenticateToken, userController.resetPassword);                    // reset_password
+router.put('/:id', upload.single('profile_picture'), userController.update);                                      // update
 
 /*
  * DELETE
