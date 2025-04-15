@@ -24,7 +24,7 @@ router.get('/duration', gameController.showByDuration);
  * GET
  */
 // query parameters: type
-router.get('/type', gameController.showByType);
+router.get('/type/:type', gameController.showByType);
 
 /*
  * GET

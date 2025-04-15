@@ -101,13 +101,31 @@ module.exports = {
             })
         }
     },
-
     /**
      * gameController.showByType()
      * 
      * query paramater: type
      */
-    showByType: function (req, res) { },
+    showByType: async function (req, res) {
+        const validType = ['plinko', 'blackjack', 'roulette']
+        const type = req.params.type;
+
+        if (!validType.includes(type)) {
+            return res.status(404).json({
+                message: "Game type does not exist."
+            });
+        }
+
+        try {
+            const games = await GameModel.find({ type: type })
+            return res.status(200).json(games)
+        } catch (err) {
+            return res.status(500).json({
+                message: "Error fetching games by type"
+            });
+        }
+
+    },
 
     /**
      * gameController.showByBet()
