@@ -16,7 +16,7 @@ module.exports = {
      */
     list: async function (req, res) {
         try{
-            var users = await UserModel.find().populate('cosmetics').populate('friends');
+            var users = await UserModel.find().populate('cosmetics').populate('friends').populate('banner').populate('border');
             return res.status(200).json(users);
         } catch (err){
             return res.status(500).json({
@@ -33,7 +33,7 @@ module.exports = {
         var id = req.params.id;
 
         try{
-            var user = await UserModel.findOne({ _id: id }).populate('cosmetics').populate('friends')
+            var user = await UserModel.findOne({ _id: id }).populate('cosmetics').populate('friends').populate('banner').populate('border');
 
             if (!user) {
                 return res.status(404).json({
@@ -56,7 +56,7 @@ module.exports = {
         console.log(count);
 
         try {
-            var users = await UserModel.find().sort({balance: -1}).limit(count);
+            var users = await UserModel.find().sort({balance: -1}).limit(count).populate('cosmetics').populate('friends').populate('banner').populate('border');
 
             return res.status(200).json(users);
 
@@ -86,13 +86,15 @@ module.exports = {
             var user = new UserModel({
                 username: req.body.username,
                 password: password_hash,
-                picture_path: req.file ? req.file.filename : "default",
+                picture_path: req.body.picture_path || "default", 
                 mail: req.body.mail,
                 joined: Date.now(),
-                admin: req.body.admin ?? false,
-                balance: req.body.balance ?? 0,
-                cosmetics: req.body.cosmetics ?? [],
-                friends: req.body.friends ?? []
+                admin: req.body.admin || false,
+                balance: req.body.balance || 0,
+                border: req.body.border || null,
+                banner: req.body.banner || null,
+                cosmetics: req.body.cosmetics || [],
+                friends: req.body.friends || []
             });
 
             // Create JWT token
@@ -269,6 +271,8 @@ module.exports = {
             user.date = req.body.date ?? user.date;
             user.admin = req.body.admin ?? user.admin;
             user.balance = req.body.balance ?? user.balance;
+            user.banner = req.body.banner ?? user.banner;
+            user.border = req.body.border ?? user.border;
             user.cosmetics = req.body.cosmetics ?? user.cosmetics;
             user.friends = req.body.friends ?? user.friends;
 

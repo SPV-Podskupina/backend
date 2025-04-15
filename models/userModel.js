@@ -10,6 +10,14 @@ var userSchema = new Schema({
 	'joined' : Date,
 	'admin' : Boolean,
 	'balance' : Number,
+	'border' : {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'cosmetic'
+	},
+	'banner' : {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'cosmetic'
+	},
 	'cosmetics' : [{
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'cosmetic'
