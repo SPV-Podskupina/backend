@@ -10,89 +10,211 @@ module.exports = {
     /**
      * gameController.list()
      */
-    list: function (req, res) {
-        return res.status(200).json({
-            message: "No games available"
-        });
-
-
-        GameModel.find(function (err, games) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when getting game.',
-                    error: err
-                });
-            }
-
-            return res.json(games);
-        });
+    list: async function (req, res) {
+        try {
+            const games = await GameModel.find({});
+            return res.status(200).json(games);
+        } catch (err) {
+            return res.status(500).json({
+                message: "Error fetching games."
+            })
+        }
     },
 
     /**
      * gameController.show()
      */
-    show: function (req, res) {
+    show: async function (req, res) {
         var id = req.params.id;
 
-        GameModel.findOne({ _id: id }, function (err, game) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when getting game.',
-                    error: err
-                });
-            }
-
-            if (!game) {
-                return res.status(404).json({
-                    message: 'No such game'
-                });
-            }
-
-            return res.json(game);
-        });
+        try {
+            const game = await GameModel.findById(id)
+            return res.status(200).json(game)
+        } catch (error) {
+            return res.status(500).json({
+                message: "Error fetching game."
+            })
+        }
     },
 
     /**
      * gameController.showByDate()
      * 
-     * query paramaters: start_date, end_date
+     * query paramaters: start, start
      */
-    showByDate: function (req, res) { },
+    showBySession: async function (req, res) {
+        const { start, end } = req.query
+        const filter = {}
+        if (start || end) {
+            const sessionFilter = {};
+
+            if (start) sessionFilter.$gte = new Date(start)
+            if (end) sessionFilter.$lte = new Date(end)
+
+            if (start && !end) sessionFilter.$lte = new Date();
+
+            filter.session_start = sessionFilter;
+        }
+
+        try {
+            const games = await GameModel.find(filter);
+            return res.status(200).json(games)
+        } catch (err) {
+            return res.status(500).json({
+                message: "Error fetching games by date."
+            })
+        }
+    },
 
     /**
      * gameController.showByDuration()
      * 
      * query paramaters: min, max  
      */
-    showByDuration: function (req, res) { },
+    showByDuration: async function (req, res) {
+        const { min, max } = req.query
 
+        const minDurationMs = min ? parseInt(min) * 60 * 1000 : null;
+        const maxDurationMs = max ? parseInt(max) * 60 * 1000 : null;
+
+        const durationFilter = {};
+        if (minDurationMs !== null) durationFilter.$gte = minDurationMs;
+        if (maxDurationMs !== null) durationFilter.$lte = maxDurationMs;
+
+        try {
+            const games = await GameModel.aggregate([
+                {
+                    $addFields: {
+                        duration: {
+                            $subtract: ["$session_end", "$session_start"]
+                        }
+                    }
+                },
+                ...(Object.keys(durationFilter).length > 0
+                    ? [{ $match: { duration: durationFilter } }]
+                    : [])
+            ]);
+            return res.status(200).json(games)
+        } catch (err) {
+            return res.status(500).json({
+                message: "Error fetching games by duration."
+            })
+        }
+    },
     /**
      * gameController.showByType()
      * 
      * query paramater: type
      */
-    showByType: function (req, res) { },
+    showByType: async function (req, res) {
+        const validType = ['plinko', 'blackjack', 'roulette']
+        const type = req.params.type;
+
+        if (!validType.includes(type)) {
+            return res.status(404).json({
+                message: "Game type does not exist."
+            });
+        }
+
+        try {
+            const games = await GameModel.find({ type: type })
+            return res.status(200).json(games)
+        } catch (err) {
+            return res.status(500).json({
+                message: "Error fetching games by type"
+            });
+        }
+
+    },
 
     /**
      * gameController.showByBet()
      * 
      * query paramaters: min, max
      */
-    showByBet: function (req, res) { },
+    showByBet: async function (req, res) {
+        const { min, max } = req.query;
+
+        const betFilter = {};
+        if (min !== undefined) betFilter.$gte = parseFloat(min);
+        if (max !== undefined) betFilter.$lte = parseFloat(max);
+
+        const match = Object.keys(betFilter).length > 0 ? { total_bet: betFilter } : {};
+
+        try {
+            const games = await GameModel.find(match);
+            return res.status(200).json(games);
+        } catch (err) {
+            return res.status(500).json({
+                message: "Error fetching games by bet amount.",
+            });
+        }
+    },
 
     /**
      * gameController.showByWinning()
      * 
      * query paramaters: min, max
      */
-    showByWinning: function (req, res) { },
+    showByWinning: async function (req, res) {
+        const { min, max } = req.query;
+
+        // Parse winnings range
+        const minVal = min !== undefined ? parseFloat(min) : null;
+        const maxVal = max !== undefined ? parseFloat(max) : null;
+
+        // Build winnings filter
+        const winFilter = {};
+        if (minVal !== null) winFilter.$gte = minVal;
+        if (maxVal !== null) winFilter.$lte = maxVal;
+
+        try {
+            const games = await GameModel.aggregate([
+                {
+                    $addFields: {
+                        winnings: {
+                            $subtract: ['$balance_end', '$balance_start']
+                        }
+                    }
+                },
+                ...(Object.keys(winFilter).length > 0
+                    ? [{ $match: { winnings: winFilter } }]
+                    : [])
+            ]);
+
+            return res.status(200).json(games);
+        } catch (err) {
+            return res.status(500).json({
+                message: "Error fetching games by winnings.",
+                error: err.message
+            });
+        }
+    },
 
     /**
      * gameController.showByRounds()
      * 
      * query paramaters: min, max
      */
-    showByRounds: function (req, res) { },
+    showByRounds: async function (req, res) {
+        const { min, max } = req.query;
+
+        const roundsFilter = {};
+        if (min !== undefined) roundsFilter.$gte = parseFloat(min);
+        if (max !== undefined) roundsFilter.$lte = parseFloat(max);
+
+        const match = Object.keys(roundsFilter).length > 0 ? { rounds_played: roundsFilter } : {};
+
+        try {
+            const games = await GameModel.find(match);
+            return res.status(200).json(games);
+        } catch (err) {
+            return res.status(500).json({
+                message: "Error fetching games by bet amount.",
+            });
+        }
+
+    },
 
     /**
      * gameController.create()
