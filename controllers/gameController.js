@@ -40,21 +40,20 @@ module.exports = {
     /**
      * gameController.showByDate()
      * 
-     * query paramaters: start_date, end_date
+     * query paramaters: sessionStart, sessionEnd
      */
-    showByDate: async function (req, res) {
-        const { minDate, maxDate } = req.query
-        console.log(minDate, maxDate)
-        let filter = {}
-        if (minDate || maxDate) {
-            const dateFilter = {};
+    showBySession: async function (req, res) {
+        const { sessionStart, sessionEnd } = req.query
+        const filter = {}
+        if (sessionStart || sessionEnd) {
+            const sessionFilter = {};
 
-            if (minDate) dateFilter.$gte = new Date(minDate)
-            if (maxDate) dateFilter.$lte = new Date(maxDate)
+            if (sessionStart) sessionFilter.$gte = new Date(sessionStart)
+            if (sessionEnd) sessionFilter.$lte = new Date(sessionEnd)
 
-            if (minDate && !maxDate) dateFilter.$lte = new Date();
+            if (sessionStart && !sessionEnd) sessionFilter.$lte = new Date();
 
-            filter.session_start = dateFilter;
+            filter.session_start = sessionFilter;
         }
 
         try {
@@ -70,9 +69,38 @@ module.exports = {
     /**
      * gameController.showByDuration()
      * 
-     * query paramaters: min, max  
+     * query paramaters: minDuration, maxDuration  
      */
-    showByDuration: function (req, res) { },
+    showByDuration: async function (req, res) {
+        const { minDuration, maxDuration } = req.query
+
+        const minDurationMs = minDuration ? parseInt(minDuration) * 60 * 1000 : null;
+        const maxDurationMs = maxDuration ? parseInt(maxDuration) * 60 * 1000 : null;
+
+        const durationFilter = {};
+        if (minDurationMs !== null) durationFilter.$gte = minDurationMs;
+        if (maxDurationMs !== null) durationFilter.$lte = maxDurationMs;
+
+        try {
+            const games = await GameModel.aggregate([
+                {
+                    $addFields: {
+                        duration: {
+                            $subtract: ["$session_end", "$session_start"]
+                        }
+                    }
+                },
+                ...(Object.keys(durationFilter).length > 0
+                    ? [{ $match: { duration: durationFilter } }]
+                    : [])
+            ]);
+            return res.status(200).json(games)
+        } catch (err) {
+            return res.status(500).json({
+                message: "Error fetching games by duration."
+            })
+        }
+    },
 
     /**
      * gameController.showByType()

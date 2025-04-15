@@ -11,8 +11,8 @@ router.get('/', gameController.list);
 /*
  * GET
  */
-// query parameters: start_date, end_date 
-router.get('/date', gameController.showByDate);
+// query parameters: sessionStart, sessionEnd  
+router.get('/session', gameController.showBySession);
 
 /*
  * GET
