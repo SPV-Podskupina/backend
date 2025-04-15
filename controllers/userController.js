@@ -151,11 +151,33 @@ module.exports = {
     },
 
     addFriend: async function (req, res) {
-
+        const user_id = req.user.user_id;             
+        const friend_id = req.params.id;       
+        
+        UserModel.findByIdAndUpdate(
+          user_id,
+          { $addToSet: { friends: friend_id } },       
+          { new: true }                          
+        ).then(updatedUser => {
+          res.json(updatedUser);
+        }).catch(err => {
+          res.status(500).json({ error: 'Error adding friend', details: err });
+        });
     },
 
     removeFriend: async function (req, res) {
-
+        const user_id = req.user.user_id;             
+        const friend_id = req.params.id;       
+        
+        UserModel.findByIdAndUpdate(
+          user_id,
+          { $pull: { friends: friend_id } },       
+          { new: true }                          
+        ).then(updatedUser => {
+          res.json(updatedUser);
+        }).catch(err => {
+          res.status(500).json({ error: 'Error adding friend', details: err });
+        });
     },
 
     addBalance: async function (req, res) {

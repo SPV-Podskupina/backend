@@ -21,8 +21,8 @@ router.get('/:id', userController.show);                                        
 router.post('/register', uniqueUsernameCheck, upload.single('profile_puicture'), userController.create);           // register
 router.post('/login', userController.login);                                    // login
 router.post('/logout', JWTCheck.authenticateToken, userController.logout);      // logout
-router.post('/add_friend', JWTCheck.authenticateToken, userController.addFriend);
-router.post('/remove_friend', JWTCheck.authenticateToken, userController.removeFriend);
+router.post('/add_friend/:id', JWTCheck.authenticateToken, userController.addFriend);
+router.post('/remove_friend/:id', JWTCheck.authenticateToken, userController.removeFriend);
 router.post('/add_balance', JWTCheck.authenticateToken, userController.addBalance);
 router.post('/remove_balance', JWTCheck.authenticateToken, userController.removeBalance);
 router.post('/buy_item', JWTCheck.authenticateToken, userController.buyItem);
