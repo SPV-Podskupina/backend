@@ -1,9 +1,39 @@
 var GameModel = require('../models/gameModel.js');
 
 /**
- * gameController.js
+ * @swagger
+ * tags:
+ *   name: Games
+ *   description: Game management and analytics
  *
- * @description :: Server-side logic for managing games.
+ * components:
+ *   schemas:
+ *     Game:
+ *       type: object
+ *       required:
+ *         - type
+ *       properties:
+ *         _id:
+ *           type: string
+ *         type:
+ *           type: string
+ *           enum: [plinko, roulette, blackjack]
+ *         user_id:
+ *           type: string
+ *         session_start:
+ *           type: string
+ *           format: date-time
+ *         session_end:
+ *           type: string
+ *           format: date-time
+ *         total_bet:
+ *           type: number
+ *         balance_start:
+ *           type: number
+ *         balance_end:
+ *           type: number
+ *         rounds_played:
+ *           type: number
  */
 module.exports = {
 
