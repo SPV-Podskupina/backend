@@ -81,6 +81,27 @@ module.exports = {
         }
     },
 
+    showByType: async function (req, res) {
+        const validType = ['frame', 'banner', 'emote']
+        const type = req.params.type;
+
+        if (!validType.includes(type)) {
+            return res.status(404).json({
+                message: "Cosmetic type does not exist."
+            });
+        }
+
+        try {
+            const cosmetics = await CosmeticModel.find({ type: type })
+            return res.status(200).json(cosmetics)
+        } catch (err) {
+            return res.status(500).json({
+                message: "Error fetching games by type"
+            });
+        }
+
+    },
+
     /**
      * cosmeticController.create()
      */

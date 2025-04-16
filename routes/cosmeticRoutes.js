@@ -13,6 +13,7 @@ router.get('/name/:name', JWTCheck.authenticateToken, cosmeticController.showByN
 
 router.get('/value', JWTCheck.authenticateToken, cosmeticController.showByValue);
 
+router.get('/type/:type', JWTCheck.authenticateToken, cosmeticController.showByType)
 /*
  * GET
  */
