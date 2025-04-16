@@ -120,18 +120,17 @@ module.exports = {
     /**
      * cosmeticController.remove()
      */
-    remove: function (req, res) {
-        var id = req.params.id;
+    remove: async function (req, res) {
+        const id = req.params.id;
 
-        CosmeticModel.findByIdAndRemove(id, function (err, cosmetic) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when deleting the cosmetic.',
-                    error: err
-                });
-            }
-
+        try {
+            await CosmeticModel.findByIdAndDelete(id);
             return res.status(204).json();
-        });
+        } catch (err) {
+            return res.status(500).json({
+                message: 'Error when deleting the game.',
+                error: err
+            });
+        }
     }
 };
