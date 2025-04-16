@@ -26,7 +26,7 @@ module.exports = {
      * cosmeticController.show()
      */
     show: async function (req, res) {
-        var id = req.params.id;
+        const id = req.params.id;
 
         try {
             const cosmetic = await cosmeticModel.findById(id)
@@ -45,7 +45,7 @@ module.exports = {
     },
 
     showByName: async function (req, res) {
-        var name = req.params.name;
+        const name = req.params.name;
 
         try {
             const cosmetic = await cosmeticModel.findOne({ name })
@@ -61,6 +61,24 @@ module.exports = {
             })
         }
 
+    },
+
+    showByValue: async function (req, res) {
+        const { min, max } = req.query
+        const valueFilter = {};
+        if (min !== undefined) valueFilter.$gte = parseFloat(min);
+        if (max !== undefined) valueFilter.$lte = parseFloat(max);
+
+        const match = Object.keys(valueFilter).length > 0 ? { value: valueFilter } : {};
+
+        try {
+            const cosmetics = await cosmeticModel.find(match);
+            return res.status(200).json(cosmetics);
+        } catch {
+            return res.status(500).json({
+                message: "Error fetching cosmetic."
+            })
+        }
     },
 
     /**
@@ -100,7 +118,7 @@ module.exports = {
      * cosmeticController.update()
      */
     update: async function (req, res) {
-        var id = req.params.id;
+        const id = req.params.id;
 
         try {
             const cosmetic = await CosmeticModel.findById(id);
