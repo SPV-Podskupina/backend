@@ -1,3 +1,4 @@
+const cosmeticModel = require('../models/cosmeticModel.js');
 var CosmeticModel = require('../models/cosmeticModel.js');
 
 /**
@@ -26,25 +27,23 @@ module.exports = {
     /**
      * cosmeticController.show()
      */
-    show: function (req, res) {
+    show: async function (req, res) {
         var id = req.params.id;
 
-        CosmeticModel.findOne({ _id: id }, function (err, cosmetic) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when getting cosmetic.',
-                    error: err
-                });
-            }
-
+        try {
+            const cosmetic = await cosmeticModel.findById(id)
             if (!cosmetic) {
                 return res.status(404).json({
-                    message: 'No such cosmetic'
-                });
+                    message: "Cosmetic not found."
+                })
             }
+            return res.status(200).json(cosmetic);
+        } catch {
+            return res.status(500).json({
+                message: "Error fetching cosmetic."
+            })
+        }
 
-            return res.json(cosmetic);
-        });
     },
 
     /**
