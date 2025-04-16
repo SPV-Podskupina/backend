@@ -83,38 +83,30 @@ module.exports = {
     /**
      * cosmeticController.update()
      */
-    update: function (req, res) {
+    update: async function (req, res) {
         var id = req.params.id;
 
-        CosmeticModel.findOne({ _id: id }, function (err, cosmetic) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when getting cosmetic',
-                    error: err
-                });
-            }
-
+        try {
+            const cosmetic = await CosmeticModel.findById(id);
             if (!cosmetic) {
                 return res.status(404).json({
-                    message: 'No such cosmetic'
-                });
+                    message: "Cosmetic not found."
+                })
             }
 
+            cosmetic.name = req.body.name ? req.body.name : cosmetic.name;
             cosmetic.type = req.body.type ? req.body.type : cosmetic.type;
             cosmetic.resource_path = req.body.resource_path ? req.body.resource_path : cosmetic.resource_path;
             cosmetic.value = req.body.value ? req.body.value : cosmetic.value;
 
-            cosmetic.save(function (err, cosmetic) {
-                if (err) {
-                    return res.status(500).json({
-                        message: 'Error when updating cosmetic.',
-                        error: err
-                    });
-                }
+            const updatedCosmetic = await cosmetic.save();
+            return res.status(200).json(updatedCosmetic)
 
-                return res.json(cosmetic);
-            });
-        });
+        } catch {
+            return res.status(500).json({
+                message: "Error updating cosmetic"
+            })
+        }
     },
 
     /**
