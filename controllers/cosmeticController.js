@@ -44,6 +44,25 @@ module.exports = {
 
     },
 
+    showByName: async function (req, res) {
+        var name = req.params.name;
+
+        try {
+            const cosmetic = await cosmeticModel.findOne({ name })
+            if (!cosmetic) {
+                return res.status(404).json({
+                    message: "Cosmetic not found."
+                })
+            }
+            return res.status(200).json(cosmetic);
+        } catch {
+            return res.status(500).json({
+                message: "Error fetching cosmetic."
+            })
+        }
+
+    },
+
     /**
      * cosmeticController.create()
      */
