@@ -11,17 +11,15 @@ module.exports = {
     /**
      * cosmeticController.list()
      */
-    list: function (req, res) {
-        CosmeticModel.find(function (err, cosmetics) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when getting cosmetic.',
-                    error: err
-                });
-            }
-
-            return res.json(cosmetics);
-        });
+    list: async function (req, res) {
+        try {
+            const cosmetics = await CosmeticModel.find({});
+            return res.status(200).json(cosmetics)
+        } catch {
+            return res.status(500).json({
+                message: "Error fetching cosmetics."
+            })
+        }
     },
 
     /**
