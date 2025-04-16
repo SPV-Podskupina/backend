@@ -1,3 +1,4 @@
+const cosmeticModel = require('../models/cosmeticModel.js');
 var CosmeticModel = require('../models/cosmeticModel.js');
 
 /**
@@ -10,41 +11,95 @@ module.exports = {
     /**
      * cosmeticController.list()
      */
-    list: function (req, res) {
-        CosmeticModel.find(function (err, cosmetics) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when getting cosmetic.',
-                    error: err
-                });
-            }
-
-            return res.json(cosmetics);
-        });
+    list: async function (req, res) {
+        try {
+            const cosmetics = await CosmeticModel.find({});
+            return res.status(200).json(cosmetics)
+        } catch {
+            return res.status(500).json({
+                message: "Error fetching cosmetics."
+            })
+        }
     },
 
     /**
      * cosmeticController.show()
      */
-    show: function (req, res) {
-        var id = req.params.id;
+    show: async function (req, res) {
+        const id = req.params.id;
 
-        CosmeticModel.findOne({ _id: id }, function (err, cosmetic) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when getting cosmetic.',
-                    error: err
-                });
-            }
-
+        try {
+            const cosmetic = await cosmeticModel.findById(id)
             if (!cosmetic) {
                 return res.status(404).json({
-                    message: 'No such cosmetic'
-                });
+                    message: "Cosmetic not found."
+                })
             }
+            return res.status(200).json(cosmetic);
+        } catch {
+            return res.status(500).json({
+                message: "Error fetching cosmetic."
+            })
+        }
 
-            return res.json(cosmetic);
-        });
+    },
+
+    showByName: async function (req, res) {
+        const name = req.params.name;
+
+        try {
+            const cosmetic = await cosmeticModel.findOne({ name })
+            if (!cosmetic) {
+                return res.status(404).json({
+                    message: "Cosmetic not found."
+                })
+            }
+            return res.status(200).json(cosmetic);
+        } catch {
+            return res.status(500).json({
+                message: "Error fetching cosmetic."
+            })
+        }
+
+    },
+
+    showByValue: async function (req, res) {
+        const { min, max } = req.query
+        const valueFilter = {};
+        if (min !== undefined) valueFilter.$gte = parseFloat(min);
+        if (max !== undefined) valueFilter.$lte = parseFloat(max);
+
+        const match = Object.keys(valueFilter).length > 0 ? { value: valueFilter } : {};
+
+        try {
+            const cosmetics = await cosmeticModel.find(match);
+            return res.status(200).json(cosmetics);
+        } catch {
+            return res.status(500).json({
+                message: "Error fetching cosmetic."
+            })
+        }
+    },
+
+    showByType: async function (req, res) {
+        const validType = ['frame', 'banner', 'emote']
+        const type = req.params.type;
+
+        if (!validType.includes(type)) {
+            return res.status(404).json({
+                message: "Cosmetic type does not exist."
+            });
+        }
+
+        try {
+            const cosmetics = await CosmeticModel.find({ type: type })
+            return res.status(200).json(cosmetics)
+        } catch (err) {
+            return res.status(500).json({
+                message: "Error fetching games by type"
+            });
+        }
+
     },
 
     /**
@@ -84,7 +139,7 @@ module.exports = {
      * cosmeticController.update()
      */
     update: async function (req, res) {
-        var id = req.params.id;
+        const id = req.params.id;
 
         try {
             const cosmetic = await CosmeticModel.findById(id);

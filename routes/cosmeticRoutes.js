@@ -8,6 +8,12 @@ var JWTCheck = require('../middleware/JWTCheck.js')
  */
 router.get('/', JWTCheck.authenticateToken, cosmeticController.list);
 
+
+router.get('/name/:name', JWTCheck.authenticateToken, cosmeticController.showByName);
+
+router.get('/value', JWTCheck.authenticateToken, cosmeticController.showByValue);
+
+router.get('/type/:type', JWTCheck.authenticateToken, cosmeticController.showByType)
 /*
  * GET
  */
