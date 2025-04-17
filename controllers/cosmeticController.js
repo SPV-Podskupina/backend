@@ -109,7 +109,7 @@ module.exports = {
         const { name, type, resource_path, value } = req.body;
 
         try {
-            const existingCosmetic = await CosmeticModel.findOne({ name });
+            const existingCosmetic = await CosmeticModel.findOne({ name: name });
 
             if (existingCosmetic) {
                 return res.status(409).json({
