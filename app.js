@@ -10,12 +10,13 @@ const mongoose = require('mongoose');
 
 
 // Connect to MongoDB
-mongoose.connect(process.env.DB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-  .then(() => console.log('✅ MongoDB connected'))
-  .catch(err => console.error('❌ MongoDB connection error:', err));
+if (process.env.NODE_ENV !== 'test') {
+  mongoose.connect(process.env.DB_URI)
+    .then(() => console.log('✅ Connected to MongoDB'))
+    .catch(err => console.error('❌ Failed to connect to MongoDB', err));
+}
+
+
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/userRoutes');
