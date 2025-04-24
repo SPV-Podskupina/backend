@@ -15,6 +15,56 @@ const options = {
       },
     ],
   },
+  components: {
+    securitySchemes: {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+    },
+    responses: {
+      UnauthorizedMissingToken: {
+        description: 'Missing JWT token',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                message: { type: 'string', example: 'Missing JWT token' },
+              },
+            },
+          },
+        },
+      },
+      UnauthorizedInvalidToken: {
+        description: 'Invalid JWT token',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                message: { type: 'string', example: 'Invalid JWT token' },
+              },
+            },
+          },
+        },
+      },
+      ForbiddenRevokedToken: {
+        description: 'Token has been revoked',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                message: { type: 'string', example: 'Token has been revoked' },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
   apis: ['./routes/*.js', './controllers/*.js', './models/*.js'],
 };
 
