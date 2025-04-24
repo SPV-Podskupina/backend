@@ -32,6 +32,12 @@ module.exports = {
     show: async function (req, res) {
         var id = req.params.id;
 
+        if(!id){
+            return res.status(400).json({
+                message: 'Please provide a user id'
+            });
+        }
+
         try{
             var user = await UserModel.findOne({ _id: id }).populate('cosmetics').populate('friends').populate('banner').populate('border');
 
@@ -51,8 +57,8 @@ module.exports = {
     }, 
 
     getTopBalance: async function (req, res) {
-        var count = req.params.count;
-        
+        var count = req.params.count || 10;
+
         console.log(count);
 
         try {
@@ -73,11 +79,12 @@ module.exports = {
      */
     create: async function (req, res) {
         try {
-            if (!req.body.password) {
+            if (!req.body.password || !req.body.username || !req.body.mail) {
                 return res.status(400).json({
                     message: 'Please provide a username, password and mail',
                 });
             }
+
 
             // Hash the password
             var password_hash = await bcrypt.hash(req.body.password, 10);
@@ -121,16 +128,31 @@ module.exports = {
 
 
     login: function (req, res) {
-        UserModel.authenticate(req.body.username, req.body.password, function (err, user) {
-            if (err || !user) {
-                return res.status(403).json({
-                    message: 'Wrong username or password'
-                });
-            }
-            const jwt_token = jwt.sign({ user_id: user._id }, process.env.JWT_KEY, { expiresIn: '1h' });
 
-            res.json({ token: jwt_token, user: user });
-        });
+        if (!req.body.username || !req.body.password) {
+            return res.status(400).json({
+                message: 'Please provide a username and password'
+            });
+        }
+
+        try{
+            UserModel.authenticate(req.body.username, req.body.password, function (err, user) {
+                if (err || !user) {
+                    return res.status(403).json({
+                        message: 'Wrong username or password'
+                    });
+                }
+                const jwt_token = jwt.sign({ user_id: user._id }, process.env.JWT_KEY, { expiresIn: '1h' });
+
+                res.json({ token: jwt_token, user: user });
+            });
+        } catch (err) {
+            return res.status(500).json({
+                message: 'Error when logging in',
+                error: err
+            });
+        };
+
     },
 
     logout: async function (req, res) {
@@ -152,7 +174,20 @@ module.exports = {
 
     addFriend: async function (req, res) {
         const user_id = req.user.user_id;             
-        const friend_id = req.params.id;       
+        const friend_id = req.params.id;       ž
+
+        if(!friend_id){
+            return res.status(400).json({
+                message: 'Please provide a friend id'
+            });
+        }
+
+        if(user_id == friend_id){
+            return res.status(400).json({
+                message: 'You cannot add yourself as a friend'
+            });
+        }
+
         try {
             UserModel.findByIdAndUpdate(
             user_id,
@@ -173,7 +208,19 @@ module.exports = {
 
     removeFriend: async function (req, res) {
         const user_id = req.user.user_id;             
-        const friend_id = req.params.id;       
+        const friend_id = req.params.id;      
+        
+        if(!friend_id){
+            return res.status(400).json({
+                message: 'Please provide a friend id'
+            });
+        }
+
+        if(user_id == friend_id){
+            return res.status(400).json({
+                message: 'You cannot remove yourself as a friend'
+            });
+        }
         
         try {
             UserModel.findByIdAndUpdate(
@@ -195,6 +242,14 @@ module.exports = {
     },
 
     addBalance: async function (req, res) {
+
+        if(!req.body.amount){
+            return res.status(400).json({
+                message: 'Please provide an amount'
+            });
+        }
+
+
         try {
             if(isNaN(req.body.amount) || req.body.amount <= 0){
                 return res.status(400).json({
@@ -217,6 +272,13 @@ module.exports = {
     },
      
     removeBalance: async function (req, res) {
+
+        if(!req.body.amount){
+            return res.status(400).json({
+                message: 'Please provide an amount'
+            });
+        }
+
         try {
 
             var user = await UserModel.findById(req.user.user_id);
@@ -289,6 +351,12 @@ module.exports = {
     update: async function (req, res) {
         var id = req.params.id;
 
+        if (!id) {
+            return res.status(400).json({
+                message: 'Please provide a user id'
+            });
+        }
+
         try {
             // Find the user by ID
             const user = await UserModel.findOne({ _id: id });
@@ -327,6 +395,13 @@ module.exports = {
     },
 
     resetPassword: async function (req, res){
+
+        if (!req.body.old_password || !req.body.new_password) {
+            return res.status(400).json({
+                message: 'Please provide a old and new password'
+            });
+        }
+
         try {
             var user = await UserModel.findById(req.user.user_id);
 
@@ -364,6 +439,14 @@ module.exports = {
      * userController.remove()
      */
     remove: async function (req, res) {
+
+        if (!req.params.id) {
+            return res.status(400).json({
+                message: 'Please provide a user id'
+            });
+        }
+    
+
         try{
             var id = req.params.id;
 
