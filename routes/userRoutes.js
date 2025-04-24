@@ -493,10 +493,59 @@ router.post('/remove_friend/:id', JWTCheck.authenticateToken, userController.rem
  *     tags: [User]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               amount:
+ *                 type: number
+ *                 example: 50
+ *                 description: The amount to add to the user's balance
  *     responses:
  *       200:
- *         description: Balance added
+ *         description: Balance added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Success adding balance
+ *                 balance:
+ *                   type: number
+ *                   example: 150
+ *       400:
+ *         description: Invalid or missing amount
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Added balance must be positive
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedMissingToken'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenRevokedToken'
+ *       500:
+ *         description: Server error while adding balance
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Error adding balance
+ *                 err:
+ *                   type: object
  */
+
 router.post('/add_balance', JWTCheck.authenticateToken, userController.addBalance);
 
 /**
@@ -507,10 +556,69 @@ router.post('/add_balance', JWTCheck.authenticateToken, userController.addBalanc
  *     tags: [User]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               amount:
+ *                 type: number
+ *                 example: 20
+ *                 description: The amount to subtract from the user's balance
  *     responses:
  *       200:
- *         description: Balance removed
+ *         description: Balance removed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Success removing balance
+ *                 balance:
+ *                   type: number
+ *                   example: 80
+ *       400:
+ *         description: Invalid or negative balance
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Removed balance must be positive
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedMissingToken'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenRevokedToken'
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User not found
+ *       500:
+ *         description: Server error while removing balance
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Error removing balance
+ *                 err:
+ *                   type: object
  */
+
 router.post('/remove_balance', JWTCheck.authenticateToken, userController.removeBalance);
 
 /**
@@ -535,10 +643,71 @@ router.post('/buy_item', JWTCheck.authenticateToken, userController.buyItem);
  *     tags: [User]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - old_password
+ *               - new_password
+ *             properties:
+ *               old_password:
+ *                 type: string
+ *                 example: oldPassword123
+ *                 description: The user's current password
+ *               new_password:
+ *                 type: string
+ *                 example: newSecurePassword456
+ *                 description: The new password to be set
  *     responses:
  *       200:
- *         description: Password reset
+ *         description: Password reset successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Success updating password
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedMissingToken'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenRevokedToken'
+ *       403:
+ *         description: Current password does not match
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Mismatched passwords.
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: No such user
+ *       500:
+ *         description: Server error while resetting password
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Error when changing password
  */
+
 router.put('/reset_password', JWTCheck.authenticateToken, userController.resetPassword);
 
 /**
@@ -547,6 +716,13 @@ router.put('/reset_password', JWTCheck.authenticateToken, userController.resetPa
  *   put:
  *     summary: Update user info
  *     tags: [User]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the user to update
  *     requestBody:
  *       required: true
  *       content:
@@ -556,20 +732,74 @@ router.put('/reset_password', JWTCheck.authenticateToken, userController.resetPa
  *             properties:
  *               username:
  *                 type: string
+ *               password:
+ *                 type: string
+ *               mail:
+ *                 type: string
+ *               date:
+ *                 type: string
+ *               admin:
+ *                 type: boolean
+ *               balance:
+ *                 type: number
+ *               banner:
+ *                 type: string
+ *               border:
+ *                 type: string
+ *               cosmetics:
+ *                 type: string
+ *               friends:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *               profile_picture:
  *                 type: string
  *                 format: binary
  *     responses:
  *       200:
  *         description: User updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                 username:
+ *                   type: string
+ *                 mail:
+ *                   type: string
+ *                 picture_path:
+ *                   type: string
+ *                 date:
+ *                   type: string
+ *                 admin:
+ *                   type: boolean
+ *                 balance:
+ *                   type: number
+ *                 banner:
+ *                   type: string
+ *                 border:
+ *                   type: string
+ *                 cosmetics:
+ *                   type: string
+ *                 friends:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *       404:
+ *         description: No such user
+ *       500:
+ *         description: Server error while updating user
  */
+
 router.put('/:id', upload.single('profile_picture'), userController.update);
 
 /**
  * @swagger
  * /{id}:
  *   delete:
- *     summary: Delete a user
+ *     summary: Delete a user by ID
  *     tags: [User]
  *     parameters:
  *       - in: path
@@ -577,10 +807,24 @@ router.put('/:id', upload.single('profile_picture'), userController.update);
  *         required: true
  *         schema:
  *           type: string
+ *         description: The ID of the user to delete
  *     responses:
  *       200:
- *         description: User deleted
+ *         description: User successfully deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Success deleting user
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error while deleting user
  */
+
 router.delete('/:id', userController.remove);
 
 module.exports = router;
