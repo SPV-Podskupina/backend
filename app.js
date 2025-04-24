@@ -13,7 +13,7 @@ const cors = require('cors')
 if (process.env.NODE_ENV !== 'test') {
   mongoose.connect(process.env.DB_URI)
     .then(() => console.log('✅ Connected to MongoDB'))
-    .catch(err => console.error('❌ Failed to connect to MongoDB', err));
+    .catch(err => console.error('❌ Failed to connect to MongoDB', process.env.DB_URI, err));
 }
 
 
