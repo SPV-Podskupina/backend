@@ -174,7 +174,7 @@ module.exports = {
 
     addFriend: async function (req, res) {
         const user_id = req.user.user_id;             
-        const friend_id = req.params.id;       ž
+        const friend_id = req.params.id;
 
         if(!friend_id){
             return res.status(400).json({
