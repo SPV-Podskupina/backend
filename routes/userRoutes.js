@@ -8,7 +8,7 @@ const upload = multer({ dest: './resources/profile_pictures' });
 
 /**
  * @swagger
- * /:
+ * /user/:
  *   get:
  *     summary: Get list of all users
  *     tags: [User]
@@ -38,7 +38,7 @@ router.get('/', userController.list);
 
 /**
  * @swagger
- * /balance:
+ * /user/balance:
  *   get:
  *     summary: Get logged in user balance
  *     tags: [User]
@@ -87,7 +87,7 @@ router.get('/balance', JWTCheck.authenticateToken, userController.getBalance);
 
 /**
  * @swagger
- * /get_top_balance/{count}:
+ * /user/get_top_balance/{count}:
  *   get:
  *     summary: Get users with top balances
  *     tags: [User]
@@ -135,7 +135,7 @@ router.get('/get_top_balance/:count', userController.getTopBalance);
 
 /**
  * @swagger
- * /{id}:
+ * /user/{id}:
  *   get:
  *     summary: Get user by ID
  *     tags: [User]
@@ -182,7 +182,7 @@ router.get('/:id', userController.show);
 
 /**
  * @swagger
- * /register:
+ * /user/register:
  *   post:
  *     summary: Register a new user
  *     tags: [User]
@@ -270,7 +270,7 @@ router.post('/register', uniqueUsernameCheck, upload.single('profile_picture'), 
 
 /**
  * @swagger
- * /login:
+ * /user/login:
  *   post:
  *     summary: Log in a user
  *     tags: [User]
@@ -345,7 +345,7 @@ router.post('/login', userController.login);
 
 /**
  * @swagger
- * /logout:
+ * /user/logout:
  *   post:
  *     summary: Log out user
  *     tags: [User]
@@ -388,7 +388,7 @@ router.post('/logout', JWTCheck.authenticateToken, userController.logout);
 
 /**
  * @swagger
- * /add_friend/{id}:
+ * /user/add_friend/{id}:
  *   post:
  *     summary: Add a friend by ID
  *     tags: [User]
@@ -438,7 +438,7 @@ router.post('/add_friend/:id', JWTCheck.authenticateToken, userController.addFri
 
 /**
  * @swagger
- * /remove_friend/{id}:
+ * /user/remove_friend/{id}:
  *   post:
  *     summary: Remove a friend by ID
  *     tags: [User]
@@ -487,7 +487,7 @@ router.post('/remove_friend/:id', JWTCheck.authenticateToken, userController.rem
 
 /**
  * @swagger
- * /add_balance:
+ * /user/add_balance:
  *   post:
  *     summary: Add balance to the user
  *     tags: [User]
@@ -550,7 +550,7 @@ router.post('/add_balance', JWTCheck.authenticateToken, userController.addBalanc
 
 /**
  * @swagger
- * /remove_balance:
+ * /user/remove_balance:
  *   post:
  *     summary: Remove balance from the user
  *     tags: [User]
@@ -623,7 +623,7 @@ router.post('/remove_balance', JWTCheck.authenticateToken, userController.remove
 
 /**
  * @swagger
- * /buy_item:
+ * /user/buy_item:
  *   post:
  *     summary: Buy an item
  *     tags: [User]
@@ -710,7 +710,7 @@ router.put('/reset_password', JWTCheck.authenticateToken, userController.resetPa
 
 /**
  * @swagger
- * /{id}:
+ * /user/{id}:
  *   put:
  *     summary: Update user info
  *     tags: [User]
@@ -795,7 +795,7 @@ router.put('/:id', upload.single('profile_picture'), userController.update);
 
 /**
  * @swagger
- * /{id}:
+ * /user/{id}:
  *   delete:
  *     summary: Delete a user by ID
  *     tags: [User]
