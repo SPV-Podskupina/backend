@@ -6,7 +6,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
-
+const cors = require('cors')
 
 
 // Connect to MongoDB
@@ -25,6 +25,15 @@ const gameRoutes = require('./routes/gameRoutes')
 const { swaggerUi, specs } = require('./swagger');
 
 const app = express();
+
+const corsOptions = {
+  origin: 'http://localhost:3000',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+
 
 // Middleware
 app.use(logger('dev'));
