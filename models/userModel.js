@@ -77,6 +77,7 @@ const bcrypt = require('bcrypt');
  */
 
 
+
 var userSchema = new Schema({
 	'username': String,
 	'password': String,
