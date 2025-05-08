@@ -625,18 +625,222 @@ router.post('/remove_balance', JWTCheck.authenticateToken, userController.remove
  * @swagger
  * /user/buy_item:
  *   post:
- *     summary: Buy an item
+ *     summary: Buy a cosmetic item
  *     tags: [User]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - item_id
+ *             properties:
+ *               item_id:
+ *                 type: string
+ *                 description: The ID of the cosmetic item to purchase
+ *                 example: 6449e10290983d8b139a7236
  *     responses:
  *       200:
- *         description: Item purchased
+ *         description: Item purchased successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Success buying item
+ *                 balance:
+ *                   type: number
+ *                   example: 80
+ *       400:
+ *         description: Bad request - missing item ID, already owned, or insufficient balance
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Not enough balance
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedMissingToken'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenRevokedToken'
+ *       404:
+ *         description: User or item not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Item not found
+ *       500:
+ *         description: Server error while buying item
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Error buying item
+ *                 err:
+ *                   type: object
  */
 router.post('/buy_item', JWTCheck.authenticateToken, userController.buyItem);
 
+/**
+ * @swagger
+ * /user/equip_border:
+ *   post:
+ *     summary: Equip a border cosmetic item
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - item_id
+ *             properties:
+ *               item_id:
+ *                 type: string
+ *                 description: The ID of the border cosmetic to equip
+ *                 example: 6449e10290983d8b139a7236
+ *     responses:
+ *       200:
+ *         description: Border equipped successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Success equipping border
+ *                 border:
+ *                   type: string
+ *                   example: 6449e10290983d8b139a7236
+ *       400:
+ *         description: Bad request - missing item ID, not a border, or not owned
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User does not own this border
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedMissingToken'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenRevokedToken'
+ *       404:
+ *         description: User or item not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Item not found
+ *       500:
+ *         description: Server error while equipping border
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Error equipping border
+ *                 err:
+ *                   type: object
+ */
 router.post('/equip_border', JWTCheck.authenticateToken, userController.equipBorder);
 
+/**
+ * @swagger
+ * /user/equip_banner:
+ *   post:
+ *     summary: Equip a banner cosmetic item
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - item_id
+ *             properties:
+ *               item_id:
+ *                 type: string
+ *                 description: The ID of the banner cosmetic to equip
+ *                 example: 6449e10290983d8b139a7236
+ *     responses:
+ *       200:
+ *         description: Banner equipped successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Success equipping banner
+ *                 banner:
+ *                   type: string
+ *                   example: 6449e10290983d8b139a7236
+ *       400:
+ *         description: Bad request - missing item ID, not a banner, or not owned
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User does not own this banner
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedMissingToken'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenRevokedToken'
+ *       404:
+ *         description: User or item not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Item not found
+ *       500:
+ *         description: Server error while equipping banner
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Error equipping banner
+ *                 err:
+ *                   type: object
+ */
 router.post('/equip_banner', JWTCheck.authenticateToken, userController.equipBanner);
 
 
