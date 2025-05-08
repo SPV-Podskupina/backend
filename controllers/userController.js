@@ -1,4 +1,5 @@
 var UserModel = require('../models/userModel.js');
+var CosmeticModel = require('../models/cosmeticModel.js');
 var bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const JWTCheck = require('../middleware/JWTCheck.js');
@@ -341,9 +342,159 @@ module.exports = {
     },
 
     buyItem: async function (req, res) {
+        if(!req.body.item_id){
+            return res.status(400).json({
+                message: 'Please provide an item id'
+            });
+        }
+
+        try {
+            var user = await UserModel.findById(req.user.user_id);
+
+            var item = await CosmeticModel.findById(req.body.item_id);
+
+            if(!user){
+                return res.status(404).json({
+                    message: 'User not found'
+                })
+            }
+
+            if(!item){
+                return res.status(404).json({
+                    message: 'Item not found'
+                })
+            }
+
+            if(user.cosmetics.includes(req.body.item_id)){
+                return res.status(400).json({
+                    message: 'User already owns this item'
+                })
+            }
+
+            if(user.balance < item.value){
+                return res.status(400).json({
+                    message: 'Not enough balance'
+                })
+            } else {
+                user.balance -= item.value;
+                user.cosmetics.push(req.body.item_id);
+                await user.save();
+
+                return res.status(200).json({
+                    message: 'Success buying item',
+                    balance: user.balance
+                });
+            }
+        } catch (err) {
+            return res.status(500).json({
+                message: 'Error buying item',
+                err: err
+            })
+        }
+    },
+
+    equipBorder: async function (req, res) {
+        if(!req.body.item_id){
+            return res.status(400).json({
+                message: 'Please provide a border id'
+            });
+        }
+
+        try {
+            var user = await UserModel.findById(req.user.user_id);
+
+            var item = await CosmeticModel.findById(req.body.item_id);
+
+            if(!item){
+                return res.status(404).json({
+                    message: 'Item not found'
+                })
+            }
+
+            if(item.type != 'frame'){
+                return res.status(400).json({
+                    message: 'Item is not a border'
+                })
+            }
+
+            if(!user){
+                return res.status(404).json({
+                    message: 'User not found'
+                })
+            } else {
+                if(!user.cosmetics.includes(req.body.item_id)){
+                    return res.status(400).json({
+                        message: 'User does not own this border'
+                    })
+                }
+
+                user.border = req.body.item_id;
+                await user.save();
+
+                return res.status(200).json({
+                    message: 'Success equipping border',
+                    border: user.border
+                });
+            }
+        } catch (err) {
+            return res.status(500).json({
+                message: 'Error equipping border',
+                err: err
+            })
+        }
 
     },
 
+    equipBanner: async function (req, res) {
+        if(!req.body.item_id){
+            return res.status(400).json({
+                message: 'Please provide a banner id'
+            });
+        }
+
+        try {
+            var user = await UserModel.findById(req.user.user_id);
+
+            var item = await CosmeticModel.findById(req.body.item_id);
+
+            if(!item){
+                return res.status(404).json({
+                    message: 'Item not found'
+                })
+            }
+            if(item.type != 'banner'){
+                return res.status(400).json({
+                    message: 'Item is not a banner'
+                })
+            }
+
+            if(!user){
+                return res.status(404).json({
+                    message: 'User not found'
+                })
+            } else {
+                if(!user.cosmetics.includes(req.body.item_id)){
+                    return res.status(400).json({
+                        message: 'User does not own this banner'
+                    })
+                }
+
+                user.banner = req.body.item_id;
+                await user.save();
+
+                return res.status(200).json({
+                    message: 'Success equipping banner',
+                    banner: user.banner
+                });
+            }
+        } catch (err) {
+            return res.status(500).json({
+                message: 'Error equipping banner',
+                err: err
+            })
+        }
+
+    },
 
     /**
      * userController.update()

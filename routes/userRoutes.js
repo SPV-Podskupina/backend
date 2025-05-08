@@ -635,6 +635,11 @@ router.post('/remove_balance', JWTCheck.authenticateToken, userController.remove
  */
 router.post('/buy_item', JWTCheck.authenticateToken, userController.buyItem);
 
+router.post('/equip_border', JWTCheck.authenticateToken, userController.equipBorder);
+
+router.post('/equip_banner', JWTCheck.authenticateToken, userController.equipBanner);
+
+
 /**
  * @swagger
  * /reset_password:
