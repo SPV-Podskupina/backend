@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var cosmeticController = require('../controllers/cosmeticController.js');
 var JWTCheck = require('../middleware/JWTCheck.js')
+var multer = require('multer')
+const upload = multer({ dest: './resources/cosmetics' })
 
 /**
 * @swagger
@@ -162,7 +164,7 @@ router.get('/:id', JWTCheck.authenticateToken, cosmeticController.show);
 *       409:
 *         description: Cosmetic with the same name already exists
 */
-router.post('/', JWTCheck.authenticateToken, cosmeticController.create);
+router.post('/', JWTCheck.authenticateToken, upload.single('cosmetic'), cosmeticController.create);
 
 /**
 * @swagger
