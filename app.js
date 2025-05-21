@@ -27,17 +27,15 @@ const { swaggerUi, specs } = require('./swagger');
 const app = express();
 
 const corsOptions = {
-  origin: [
-    'http://localhost:3000',
-    'http://84.52.181.142:3000',
-    'http://localhost',
-    'http://84.52.181.142'
-  ],
+  origin: (origin, callback) => {
+    callback(null, origin); // reflect the origin
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
 };
 
 app.use(cors(corsOptions));
+
 
 
 
