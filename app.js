@@ -26,18 +26,7 @@ const { swaggerUi, specs } = require('./swagger');
 
 const app = express();
 
-const corsOptions = {
-  origin: (origin, callback) => {
-    callback(null, origin); // reflect the origin
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true,
-};
-
-app.use(cors(corsOptions));
-
-
-
+app.use(cors({ origin: true, credentials: true }));
 
 // Middleware
 app.use(logger('dev'));
