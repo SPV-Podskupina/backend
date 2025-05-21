@@ -11,7 +11,8 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000',
+        url: 'http://84.52.181.142', // Replace with your production API base URL
+        description: 'Production server',
       },
     ],
   },
