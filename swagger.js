@@ -11,8 +11,13 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000',
+        url: 'http://84.52.181.142:3000', // Replace with your production API base URL
+        description: 'Production server',
       },
+      {
+        url: 'http://localhost:3000',
+        description: 'Local'
+      }
     ],
   },
   components: {
