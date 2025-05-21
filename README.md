@@ -4,7 +4,9 @@
 
 ## For more information check out our wiki
 
-📝[SPV Casino Wiki](https://github.com/SPV-Podskupina/backend)
+**Current WIKI** is accessible at /api-docs route
+
+**LEGACY NOT UPDATED**(📝[SPV Casino Wiki](https://github.com/SPV-Podskupina/backend))
 
 ### Prerequisites
 
