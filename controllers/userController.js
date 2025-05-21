@@ -128,34 +128,29 @@ module.exports = {
     },
 
 
-    login: function (req, res) {
+    login: async function (req, res) {
+        const { username, password } = req.body;
 
-        if (!req.body.username || !req.body.password) {
-            return res.status(400).json({
-                message: 'Please provide a username and password'
-            });
+        if (!username || !password) {
+            return res.status(400).json({ message: 'Please provide a username and password' });
         }
 
         try {
-            UserModel.authenticate(req.body.username, req.body.password, function (err, user) {
-                if (err || !user) {
-                    return res.status(403).json({
-                        message: 'Wrong username or password'
-                    });
-                }
-                console.log('Auth passed')
-                const jwt_token = jwt.sign({ user_id: user._id }, process.env.JWT_KEY, { expiresIn: '1h' });
+            const user = await UserModel.authenticate(username, password);
+            if (!user) {
+                return res.status(403).json({ message: 'Wrong username or password' });
+            }
 
-                return res.status(200).json({ token: jwt_token, user: user });
-            });
+            const jwt_token = jwt.sign({ user_id: user._id }, process.env.JWT_KEY, { expiresIn: '1h' });
+
+            return res.status(200).json({ token: jwt_token, user });
         } catch (err) {
-            return res.status(500).json({
-                message: 'Error when logging in',
-                error: err
-            });
-        };
-
+            console.error('Login error:', err);
+            return res.status(500).json({ message: 'Error when logging in', error: err.message });
+        }
     },
+
+
 
     logout: async function (req, res) {
         if (!req.user) {
