@@ -107,12 +107,10 @@ var userSchema = new Schema({
 userSchema.statics.authenticate = async function (username, password, callback) {
 	try {
 		const user = await this.findOne({ username: username });
-		console.log('user found: ', user)
 		if (!user) {
 			return callback('User not found', null);
 		}
 		const isMatch = await bcrypt.compare(password, user.password);
-		console.log('is match: ', isMatch)
 		if (!isMatch) {
 			return callback('Incorrect password', null);
 		}

@@ -146,7 +146,7 @@ module.exports = {
                 console.log('Auth passed')
                 const jwt_token = jwt.sign({ user_id: user._id }, process.env.JWT_KEY, { expiresIn: '1h' });
 
-                res.json({ token: jwt_token, user: user });
+                return res.status(200).json({ token: jwt_token, user: user });
             });
         } catch (err) {
             return res.status(500).json({
