@@ -104,21 +104,20 @@ var userSchema = new Schema({
 	}]
 });
 
-userSchema.statics.authenticate = async function (username, password, callback) {
-	try {
-		const user = await this.findOne({ username: username });
-		if (!user) {
-			return callback('User not found', null);
-		}
-		const isMatch = await bcrypt.compare(password, user.password);
-		if (!isMatch) {
-			return callback('Incorrect password', null);
-		}
-		return callback(null, user);
-	} catch (error) {
-		return callback(error, null);
+userSchema.statics.authenticate = async function (username, password) {
+	const user = await this.findOne({ username: username });
+	if (!user) {
+		throw new Error('User not found');
 	}
+
+	const isMatch = await bcrypt.compare(password, user.password);
+	if (!isMatch) {
+		throw new Error('Incorrect password');
+	}
+
+	return user;
 };
+
 
 
 var User = mongoose.model('user', userSchema);

@@ -137,16 +137,18 @@ module.exports = {
 
         try {
             const user = await UserModel.authenticate(username, password);
-            if (!user) {
-                return res.status(403).json({ message: 'Wrong username or password' });
-            }
-
             const jwt_token = jwt.sign({ user_id: user._id }, process.env.JWT_KEY, { expiresIn: '1h' });
 
             return res.status(200).json({ token: jwt_token, user });
         } catch (err) {
-            console.error('Login error:', err);
-            return res.status(500).json({ message: 'Error when logging in', error: err.message });
+            const message = err.message === 'Incorrect password' || err.message === 'User not found'
+                ? 'Wrong username or password'
+                : 'Error when logging in';
+
+            return res.status(err.message === 'Incorrect password' || err.message === 'User not found' ? 403 : 500).json({
+                message,
+                error: err.message,
+            });
         }
     },
 
