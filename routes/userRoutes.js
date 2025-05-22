@@ -35,8 +35,56 @@ const upload = multer({ dest: './resources/profile_pictures' });
  */
 router.get('/', userController.list);
 
-
+/**
+ * @swagger
+ * /user/me:
+ *   get:
+ *     summary: Get current logged-in user information
+ *     description: Returns the profile information for the currently authenticated user
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User information retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedMissingToken'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenRevokedToken'
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "No such user"
+ *       500:
+ *         description: Error retrieving user information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Error when getting user."
+ *                 error:
+ *                   type: string
+ *                   example: "Error details here"
+ */
 router.get('/me', JWTCheck.authenticateToken, userController.me);
+
+
+router.get('/stats', JWTCheck.authenticateToken, userController.stats);
+
+router.get('/games/:count', JWTCheck.authenticateToken, userController.getGames);
 
 /**
  * @swagger

@@ -83,6 +83,75 @@ module.exports = {
         }
     },
 
+    stats: async function (req, res) {
+        if (!req.user) {
+            return res.status(401).json({
+                message: 'Not logged in'
+            });
+        }
+
+        try {
+            const userId = req.user.user_id;
+            
+            const games = await GameModel.find({ user_id: userId });
+            
+            const gamesPlayed = games.length;
+            
+            let totalEarnings = 0;
+            let wins = 0;
+            
+            games.forEach(game => {
+                const profit = game.balance_end - game.balance_start;
+                totalEarnings += profit;
+                
+                if (game.balance_end > game.balance_start) {
+                    wins++;
+                }
+            });
+            
+            const winRate = gamesPlayed > 0 ? (wins / gamesPlayed) : 0;
+            
+            return res.status(200).json({
+                gamesPlayed,
+                wins,
+                totalEarnings,
+                winRate
+            });
+        } catch (err) {
+            return res.status(500).json({
+                message: 'Error getting user statistics',
+                error: err
+            });
+        }
+    },
+
+    getGames: async function (req, res) {
+        if (!req.user) {
+            return res.status(401).json({
+                message: 'Not logged in'
+            });
+        }
+
+        var count = req.params.count || 3;
+
+        try {
+            var games = await GameModel.find({user_id: req.user.user_id}).sort({session_start: -1}).limit(count).populate('user_id');
+
+            if (!games) {
+                return res.status(404).json({
+                    message: 'No such game'
+                });
+            }
+
+            return res.json(games);
+        } catch (err) {
+            return res.status(500).json({
+                message: 'Error when getting games.',
+                error: err
+            });
+        }
+    },
+
     getTopBalance: async function (req, res) {
         var count = req.params.count || 10;
 
