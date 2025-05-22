@@ -36,6 +36,8 @@ const upload = multer({ dest: './resources/profile_pictures' });
 router.get('/', userController.list);
 
 
+router.get('/me', JWTCheck.authenticateToken, userController.me);
+
 /**
  * @swagger
  * /user/balance:
