@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 var gameSchema = new Schema({
 	'type': {
 		type: String,
-		enum: ['plinko', 'roulette', 'blackjack'],
+		enum: ['Plinko', 'Roulette', 'Blackjack'],
 		required: true
 	},
 	'user_id': {
