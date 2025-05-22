@@ -58,6 +58,31 @@ module.exports = {
         }
     },
 
+    me: async function (req, res) {
+
+        if (!req.user) {
+            return res.status(401).json({
+                message: 'Not logged in'
+            });
+        }
+
+        try {
+            var user = await UserModel.findById(req.user.user_id).populate('cosmetics').populate('friends').populate('banner').populate('border');
+
+            if (!user) {
+                return res.status(404).json({
+                    message: 'No such user'
+                });
+            }
+            return res.json(user);
+        } catch (err) {
+            return res.status(500).json({
+                message: 'Error when getting user.',
+                error: err
+            });
+        }
+    },
+
     getTopBalance: async function (req, res) {
         var count = req.params.count || 10;
 
