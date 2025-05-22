@@ -218,7 +218,7 @@ module.exports = {
         try {
             const game = new GameModel({
                 type: req.body.type,
-                user_id: req.body.user_id,
+                user_id: req.body.user_id || req.user._id,
                 session_start: req.body.session_start,
                 session_end: req.body.session_end,
                 total_bet: req.body.total_bet,
