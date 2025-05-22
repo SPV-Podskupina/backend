@@ -135,6 +135,189 @@ router.get('/get_top_balance/:count', userController.getTopBalance);
 
 /**
  * @swagger
+ * /user/get_top_games/{count}:
+ *   get:
+ *     summary: Get users with the most games played
+ *     tags: [User]
+ *     parameters:
+ *       - in: path
+ *         name: count
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Number of users to return
+ *     responses:
+ *       200:
+ *         description: Top users by game count retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 allOf:
+ *                   - $ref: '#/components/schemas/User'
+ *                   - type: object
+ *                     properties:
+ *                       gamesPlayed:
+ *                         type: integer
+ *                         description: Number of games played by the user
+ *                         example: 42
+ *       400:
+ *         description: Invalid count parameter
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Invalid count parameter"
+ *       500:
+ *         description: Error retrieving users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Error getting top games users"
+ *                 error:
+ *                   type: string
+ *                   example: "Error details here"
+ */
+router.get('/get_top_games/:count', userController.getTopGames);
+
+/**
+ * @swagger
+ * /user/get_top_wins/{count}:
+ *   get:
+ *     summary: Get users with the most wins
+ *     description: Returns users sorted by number of games won, where a win is defined as ending with more balance than started
+ *     tags: [User]
+ *     parameters:
+ *       - in: path
+ *         name: count
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Number of users to return
+ *     responses:
+ *       200:
+ *         description: Top winners retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 allOf:
+ *                   - $ref: '#/components/schemas/User'
+ *                   - type: object
+ *                     properties:
+ *                       winsCount:
+ *                         type: integer
+ *                         description: Number of games won by the user
+ *                         example: 15
+ *       400:
+ *         description: Invalid count parameter
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Invalid count parameter"
+ *       500:
+ *         description: Error retrieving users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Error getting top winners"
+ *                 error:
+ *                   type: string
+ *                   example: "Error details here"
+ */
+router.get('/get_top_wins/:count', userController.getTopWins);
+
+/**
+ * @swagger
+ * /user/get_top_winrate/{count}:
+ *   get:
+ *     summary: Get users with highest win rates
+ *     description: Returns users sorted by win rate (wins / total games), where a win is when ending balance is greater than starting balance
+ *     tags: [User]
+ *     parameters:
+ *       - in: path
+ *         name: count
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Number of users to return
+ *       - in: query
+ *         name: minGames
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 5
+ *         description: Minimum number of games required to be included in ranking
+ *     responses:
+ *       200:
+ *         description: Top win rate users retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 allOf:
+ *                   - $ref: '#/components/schemas/User'
+ *                   - type: object
+ *                     properties:
+ *                       totalGames:
+ *                         type: integer
+ *                         description: Total number of games played
+ *                         example: 25
+ *                       wins:
+ *                         type: integer
+ *                         description: Number of games won
+ *                         example: 15
+ *                       winRate:
+ *                         type: number
+ *                         format: float
+ *                         description: Win rate (wins / total games)
+ *                         example: 0.6
+ *       400:
+ *         description: Invalid parameters
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Invalid count parameter"
+ *       500:
+ *         description: Error retrieving users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Error getting users with top win rates"
+ *                 error:
+ *                   type: string
+ *                   example: "Error details here"
+ */
+router.get('/get_top_winrate/:count', userController.getTopWinrate);
+
+/**
+ * @swagger
  * /user/{id}:
  *   get:
  *     summary: Get user by ID

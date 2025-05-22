@@ -1,5 +1,6 @@
 var UserModel = require('../models/userModel.js');
 var CosmeticModel = require('../models/cosmeticModel.js');
+const GameModel = require('../models/gameModel.js');
 var bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const JWTCheck = require('../middleware/JWTCheck.js');
@@ -70,6 +71,165 @@ module.exports = {
         } catch (err) {
             return res.status(500).json({
                 message: 'Error getting users.',
+                error: err
+            });
+        }
+    },
+
+    
+    getTopGames: async function (req, res) {
+        var count = parseInt(req.params.count) || 10;
+        
+        try {
+            if (isNaN(count) || count <= 0) {
+                return res.status(400).json({
+                    message: 'Invalid count parameter'
+                });
+            }
+            
+            const gameStats = await GameModel.aggregate([
+                { $group: { 
+                    _id: "$user_id", 
+                    gamesPlayed: { $sum: 1 }
+                }},
+                { $sort: { gamesPlayed: -1 }},
+                { $limit: count }
+            ]);
+            
+            const userIds = gameStats.map(stat => stat._id);
+            const users = await UserModel.find({
+                _id: { $in: userIds }
+            }).populate('cosmetics').populate('friends').populate('banner').populate('border');
+            
+            const result = users.map(user => {
+                const stats = gameStats.find(stat => stat._id.equals(user._id));
+                return {
+                    ...user.toObject(),
+                    gamesPlayed: stats ? stats.gamesPlayed : 0
+                };
+            });
+            
+            result.sort((a, b) => b.gamesPlayed - a.gamesPlayed);
+            
+            return res.status(200).json(result);
+        } catch (err) {
+            return res.status(500).json({
+                message: 'Error getting top games users',
+                error: err
+            });
+        }
+    },
+
+    getTopWins: async function (req, res) {
+        var count = parseInt(req.params.count) || 10;
+        
+        try {
+            if (isNaN(count) || count <= 0) {
+                return res.status(400).json({
+                    message: 'Invalid count parameter'
+                });
+            }
+            
+            const winStats = await GameModel.aggregate([
+                { $match: { $expr: { $gt: ["$balance_end", "$balance_start"] } } },
+                { $group: { 
+                    _id: "$user_id", 
+                    winsCount: { $sum: 1 }
+                }},
+                { $sort: { winsCount: -1 }},
+                { $limit: count }
+            ]);
+            
+            const userIds = winStats.map(stat => stat._id);
+            const users = await UserModel.find({
+                _id: { $in: userIds }
+            }).populate('cosmetics').populate('friends').populate('banner').populate('border');
+            
+            const result = users.map(user => {
+                const stats = winStats.find(stat => stat._id.equals(user._id));
+                return {
+                    ...user.toObject(),
+                    winsCount: stats ? stats.winsCount : 0
+                };
+            });
+            
+            result.sort((a, b) => b.winsCount - a.winsCount);
+            
+            return res.status(200).json(result);
+        } catch (err) {
+            return res.status(500).json({
+                message: 'Error getting top winners',
+                error: err
+            });
+        }
+    },
+
+    getTopWinrate: async function (req, res) {
+        var count = parseInt(req.params.count) || 10;
+        var minGames = parseInt(req.query.minGames) || 1; 
+        
+        try {
+            if (isNaN(count) || count <= 0) {
+                return res.status(400).json({
+                    message: 'Invalid count parameter'
+                });
+            }
+            
+            if (isNaN(minGames) || minGames < 0) {
+                return res.status(400).json({
+                    message: 'Invalid minimum games parameter'
+                });
+            }
+            
+            const winRateStats = await GameModel.aggregate([
+                { $group: { 
+                    _id: "$user_id",
+                    totalGames: { $sum: 1 },
+                    wins: { 
+                        $sum: { 
+                            $cond: [
+                                { $gt: ["$balance_end", "$balance_start"] },
+                                1,
+                                0
+                            ]
+                        } 
+                    }
+                }},
+                { $addFields: {
+                    winRate: { 
+                        $cond: [
+                            { $eq: ["$totalGames", 0] },
+                            0,
+                            { $divide: ["$wins", "$totalGames"] }
+                        ]
+                    }
+                }},
+                { $match: { totalGames: { $gte: minGames } } },
+                { $sort: { winRate: -1 }},
+                { $limit: count }
+            ]);
+            
+            const userIds = winRateStats.map(stat => stat._id);
+            const users = await UserModel.find({
+                _id: { $in: userIds }
+            }).populate('cosmetics').populate('friends').populate('banner').populate('border');
+            
+            const result = users.map(user => {
+                const stats = winRateStats.find(stat => stat._id.equals(user._id));
+                return {
+                    ...user.toObject(),
+                    totalGames: stats ? stats.totalGames : 0,
+                    wins: stats ? stats.wins : 0,
+                    winRate: stats ? stats.winRate : 0
+                };
+            });
+            
+            result.sort((a, b) => b.winRate - a.winRate);
+            
+            return res.status(200).json(result);
+        } catch (err) {
+            return res.status(500).json({
+                message: 'Error getting users with top win rates',
                 error: err
             });
         }
