@@ -17,10 +17,10 @@ module.exports = {
      * userController.list()
      */
     list: async function (req, res) {
-        try {
+        try{
             var users = await UserModel.find().populate('cosmetics').populate('friends').populate('banner').populate('border');
             return res.status(200).json(users);
-        } catch (err) {
+        } catch (err){
             return res.status(500).json({
                 message: "Error getting users",
                 error: err
@@ -34,29 +34,29 @@ module.exports = {
     show: async function (req, res) {
         var id = req.params.id;
 
-        if (!id) {
+        if(!id){
             return res.status(400).json({
                 message: 'Please provide a user id'
             });
         }
 
-        try {
+        try{
             var user = await UserModel.findOne({ _id: id }).populate('cosmetics').populate('friends').populate('banner').populate('border');
 
             if (!user) {
                 return res.status(404).json({
-                    message: 'No such user'
+                        message: 'No such user'
                 });
             }
 
             return res.json(user);
-        } catch (err) {
+        } catch (err){
             return res.status(500).json({
                 message: 'Error when getting user.',
                 error: err
             });
-        }
-    },
+        } 
+    }, 
 
     me: async function (req, res) {
 
@@ -158,7 +158,7 @@ module.exports = {
         console.log(count);
 
         try {
-            var users = await UserModel.find().sort({ balance: -1 }).limit(count).populate('cosmetics').populate('friends').populate('banner').populate('border');
+            var users = await UserModel.find().sort({balance: -1}).limit(count).populate('cosmetics').populate('friends').populate('banner').populate('border');
 
             return res.status(200).json(users);
 
@@ -190,18 +190,19 @@ module.exports = {
                 { $limit: count }
             ]);
 
+            console.log(gameStats);
             const filteredGameStats = gameStats.filter(stat =>
                 stat._id && typeof stat._id.equals === 'function' && !stat._id.equals(null)
             );
 
             
-            const userIds = filteredGameStats.map(stat => stat._id);
+            const userIds = gameStats.map(stat => stat._id);
             const users = await UserModel.find({
                 _id: { $in: userIds }
             }).populate('cosmetics').populate('friends').populate('banner').populate('border');
             
             const result = users.map(user => {
-                const stats = filteredGameStats.find(stat => stat._id.equals(user._id));
+                const stats = gameStats.find(stat => stat._id.equals(user._id));
                 return {
                     ...user.toObject(),
                     gamesPlayed: stats ? stats.gamesPlayed : 0
@@ -362,7 +363,7 @@ module.exports = {
             var user = new UserModel({
                 username: req.body.username,
                 password: password_hash,
-                picture_path: req.body.picture_path || "default",
+                picture_path: req.body.picture_path || "default", 
                 mail: req.body.mail,
                 joined: Date.now(),
                 admin: req.body.admin || false,
@@ -396,31 +397,33 @@ module.exports = {
     },
 
 
-    login: async function (req, res) {
-        const { username, password } = req.body;
+    login: function (req, res) {
 
-        if (!username || !password) {
-            return res.status(400).json({ message: 'Please provide a username and password' });
-        }
-
-        try {
-            const user = await UserModel.authenticate(username, password);
-            const jwt_token = jwt.sign({ user_id: user._id }, process.env.JWT_KEY, { expiresIn: '1h' });
-
-            return res.status(200).json({ token: jwt_token, user });
-        } catch (err) {
-            const message = err.message === 'Incorrect password' || err.message === 'User not found'
-                ? 'Wrong username or password'
-                : 'Error when logging in';
-
-            return res.status(err.message === 'Incorrect password' || err.message === 'User not found' ? 403 : 500).json({
-                message,
-                error: err.message,
+        if (!req.body.username || !req.body.password) {
+            return res.status(400).json({
+                message: 'Please provide a username and password'
             });
         }
+
+        try{
+            UserModel.authenticate(req.body.username, req.body.password, function (err, user) {
+                if (err || !user) {
+                    return res.status(403).json({
+                        message: 'Wrong username or password'
+                    });
+                }
+                const jwt_token = jwt.sign({ user_id: user._id }, process.env.JWT_KEY, { expiresIn: '1h' });
+
+                res.json({ token: jwt_token, user: user });
+            });
+        } catch (err) {
+            return res.status(500).json({
+                message: 'Error when logging in',
+                error: err
+            });
+        };
+
     },
-
-
 
     logout: async function (req, res) {
         if (!req.user) {
@@ -440,16 +443,16 @@ module.exports = {
     },
 
     addFriend: async function (req, res) {
-        const user_id = req.user.user_id;
+        const user_id = req.user.user_id;             
         const friend_id = req.params.id;
 
-        if (!friend_id) {
+        if(!friend_id){
             return res.status(400).json({
                 message: 'Please provide a friend id'
             });
         }
 
-        if (user_id == friend_id) {
+        if(user_id == friend_id){
             return res.status(400).json({
                 message: 'You cannot add yourself as a friend'
             });
@@ -457,15 +460,15 @@ module.exports = {
 
         try {
             UserModel.findByIdAndUpdate(
-                user_id,
-                { $addToSet: { friends: friend_id } },
-                { new: true }
+            user_id,
+            { $addToSet: { friends: friend_id } },       
+            { new: true }                          
             ).then(updatedUser => {
-                res.json(updatedUser);
+            res.json(updatedUser);
             }).catch(err => {
-                res.status(500).json({ error: 'Error adding friend', details: err });
+            res.status(500).json({ error: 'Error adding friend', details: err });
             });
-        } catch (err) {
+        }catch (err) {
             return res.status(500).json({
                 message: 'Error adding friend',
                 error: err
@@ -474,30 +477,30 @@ module.exports = {
     },
 
     removeFriend: async function (req, res) {
-        const user_id = req.user.user_id;
-        const friend_id = req.params.id;
-
-        if (!friend_id) {
+        const user_id = req.user.user_id;             
+        const friend_id = req.params.id;      
+        
+        if(!friend_id){
             return res.status(400).json({
                 message: 'Please provide a friend id'
             });
         }
 
-        if (user_id == friend_id) {
+        if(user_id == friend_id){
             return res.status(400).json({
                 message: 'You cannot remove yourself as a friend'
             });
         }
-
+        
         try {
             UserModel.findByIdAndUpdate(
-                user_id,
-                { $pull: { friends: friend_id } },
-                { new: true }
+            user_id,
+            { $pull: { friends: friend_id } },       
+            { new: true }                          
             ).then(updatedUser => {
-                res.json(updatedUser);
+            res.json(updatedUser);
             }).catch(err => {
-                res.status(500).json({ error: 'Error adding friend', details: err });
+            res.status(500).json({ error: 'Error adding friend', details: err });
             });
         }
         catch (err) {
@@ -510,7 +513,7 @@ module.exports = {
 
     addBalance: async function (req, res) {
 
-        if (!req.body.amount) {
+        if(!req.body.amount){
             return res.status(400).json({
                 message: 'Please provide an amount'
             });
@@ -518,29 +521,29 @@ module.exports = {
 
 
         try {
-            if (isNaN(req.body.amount) || req.body.amount <= 0) {
+            if(isNaN(req.body.amount) || req.body.amount <= 0){
                 return res.status(400).json({
                     message: 'Added balance must be positive'
                 })
             }
 
-            var user = await UserModel.findByIdAndUpdate(req.user.user_id, { $inc: { balance: req.body.amount } }, { new: true })
+            var user = await UserModel.findByIdAndUpdate(req.user.user_id, {$inc: {balance: req.body.amount}}, {new: true})
 
             return res.status(200).json({
                 message: 'Success adding balance',
                 balance: user.balance
             });
-        } catch (err) {
+        } catch(err){
             return res.status(500).json({
                 message: 'Error adding balance',
                 err: err
             });
         }
     },
-
+     
     removeBalance: async function (req, res) {
 
-        if (!req.body.amount) {
+        if(!req.body.amount){
             return res.status(400).json({
                 message: 'Please provide an amount'
             });
@@ -550,13 +553,13 @@ module.exports = {
 
             var user = await UserModel.findById(req.user.user_id);
 
-            if (!user) {
+            if(!user){
                 return res.status(404).json({
                     message: 'User not found'
                 })
             }
 
-            if (isNaN(req.body.amount) || req.body.amount <= 0) {
+            if(isNaN(req.body.amount) || req.body.amount <= 0){
                 return res.status(400).json({
                     message: 'Removed balance must be positive'
                 })
@@ -564,19 +567,19 @@ module.exports = {
 
             user.balance -= req.body.amount;
 
-            if (user.balance < 0) {
+            if(user.balance < 0){
                 return res.status(400).json({
                     message: 'New balance must be positive',
                 });
             } else {
                 await user.save();
-
+                
                 return res.status(200).json({
                     message: 'Success removing balance',
                     balance: user.balance
                 });
             }
-        } catch (err) {
+        } catch(err){
             return res.status(500).json({
                 message: 'Error removing balance',
                 err: err
@@ -589,7 +592,7 @@ module.exports = {
             var user = await UserModel.findById(req.user.user_id);
 
 
-            if (!user) {
+            if(!user){
                 return res.status(404).json({
                     message: 'User not found'
                 });
@@ -608,7 +611,7 @@ module.exports = {
     },
 
     buyItem: async function (req, res) {
-        if (!req.body.item_id) {
+        if(!req.body.item_id){
             return res.status(400).json({
                 message: 'Please provide an item id'
             });
@@ -619,25 +622,25 @@ module.exports = {
 
             var item = await CosmeticModel.findById(req.body.item_id);
 
-            if (!user) {
+            if(!user){
                 return res.status(404).json({
                     message: 'User not found'
                 })
             }
 
-            if (!item) {
+            if(!item){
                 return res.status(404).json({
                     message: 'Item not found'
                 })
             }
 
-            if (user.cosmetics.includes(req.body.item_id)) {
+            if(user.cosmetics.includes(req.body.item_id)){
                 return res.status(400).json({
                     message: 'User already owns this item'
                 })
             }
 
-            if (user.balance < item.value) {
+            if(user.balance < item.value){
                 return res.status(400).json({
                     message: 'Not enough balance'
                 })
@@ -660,7 +663,7 @@ module.exports = {
     },
 
     equipBorder: async function (req, res) {
-        if (!req.body.item_id) {
+        if(!req.body.item_id){
             return res.status(400).json({
                 message: 'Please provide a border id'
             });
@@ -671,24 +674,24 @@ module.exports = {
 
             var item = await CosmeticModel.findById(req.body.item_id);
 
-            if (!item) {
+            if(!item){
                 return res.status(404).json({
                     message: 'Item not found'
                 })
             }
 
-            if (item.type != 'frame') {
+            if(item.type != 'frame'){
                 return res.status(400).json({
                     message: 'Item is not a border'
                 })
             }
 
-            if (!user) {
+            if(!user){
                 return res.status(404).json({
                     message: 'User not found'
                 })
             } else {
-                if (!user.cosmetics.includes(req.body.item_id)) {
+                if(!user.cosmetics.includes(req.body.item_id)){
                     return res.status(400).json({
                         message: 'User does not own this border'
                     })
@@ -712,7 +715,7 @@ module.exports = {
     },
 
     equipBanner: async function (req, res) {
-        if (!req.body.item_id) {
+        if(!req.body.item_id){
             return res.status(400).json({
                 message: 'Please provide a banner id'
             });
@@ -723,23 +726,23 @@ module.exports = {
 
             var item = await CosmeticModel.findById(req.body.item_id);
 
-            if (!item) {
+            if(!item){
                 return res.status(404).json({
                     message: 'Item not found'
                 })
             }
-            if (item.type != 'banner') {
+            if(item.type != 'banner'){
                 return res.status(400).json({
                     message: 'Item is not a banner'
                 })
             }
 
-            if (!user) {
+            if(!user){
                 return res.status(404).json({
                     message: 'User not found'
                 })
             } else {
-                if (!user.cosmetics.includes(req.body.item_id)) {
+                if(!user.cosmetics.includes(req.body.item_id)){
                     return res.status(400).json({
                         message: 'User does not own this banner'
                     })
@@ -811,7 +814,7 @@ module.exports = {
         }
     },
 
-    resetPassword: async function (req, res) {
+    resetPassword: async function (req, res){
 
         if (!req.body.old_password || !req.body.new_password) {
             return res.status(400).json({
@@ -830,7 +833,7 @@ module.exports = {
 
             const isMatch = await bcrypt.compare(req.body.old_password, user.password);
 
-            if (!isMatch) {
+            if(!isMatch){
                 return res.status(403).json({
                     message: "Mismatched passwords."
                 });
@@ -850,7 +853,7 @@ module.exports = {
             })
         }
     },
-
+    
 
     /**
      * userController.remove()
@@ -862,9 +865,9 @@ module.exports = {
                 message: 'Please provide a user id'
             });
         }
+    
 
-
-        try {
+        try{
             var id = req.params.id;
 
             await UserModel.findByIdAndDelete(id);
@@ -872,7 +875,7 @@ module.exports = {
             return res.status(200).json({
                 message: 'Success deleting user'
             });
-        } catch (err) {
+        } catch (err){
             return res.status(500).json({
                 message: 'Error deleting user'
             })
