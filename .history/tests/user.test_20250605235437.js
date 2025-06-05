@@ -300,10 +300,9 @@ describe('User API Endpoints', () => {
         });
 
         it('should log in a user and return token', async () => {
-            // Mock authenticate as a promise that resolves
-            UserModel.authenticate.mockResolvedValue({ 
-                _id: 'auth-user-id', 
-                username: 'authuser' 
+            // This implementation works! Keep it as is
+            UserModel.authenticate.mockImplementation((username, password, callback) => {
+                callback(null, { _id: 'auth-user-id', username: 'authuser' });
             });
 
             const res = await request(app)
@@ -316,14 +315,20 @@ describe('User API Endpoints', () => {
         });
 
         it('should return 403 for invalid credentials', async () => {
-            // Mock authenticate as a promise that rejects with an error
-            const error = new Error('Incorrect password');
-            UserModel.authenticate.mockRejectedValue(error);
+            // The issue is how we're mocking the error case
+            // Instead of throwing an error, we need to call the callback with an error message
+            UserModel.authenticate.mockImplementation((username, password, callback) => {
+                // Important: first parameter is error, second is user (null in this case)
+                return callback('Wrong username or password', null);
+            });
 
             const res = await request(app)
                 .post('/user/login')
                 .send({ username: 'wrong', password: 'invalid' });
             
+            // Debug to see what's happening
+            console.log('Authentication error response:', res.statusCode, res.body);
+                
             expect(res.statusCode).toBe(403);
             expect(res.body.message).toBe('Wrong username or password');
         });

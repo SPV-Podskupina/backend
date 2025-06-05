@@ -293,17 +293,14 @@ describe('User API Endpoints', () => {
 
     describe('POST /user/login', () => {
         beforeEach(() => {
-            // Set JWT environment variable
             process.env.JWT_KEY = 'test_jwt_key';
             UserModel.authenticate = jest.fn();
             require('jsonwebtoken').sign = jest.fn().mockReturnValue('test_token');
         });
 
         it('should log in a user and return token', async () => {
-            // Mock authenticate as a promise that resolves
-            UserModel.authenticate.mockResolvedValue({ 
-                _id: 'auth-user-id', 
-                username: 'authuser' 
+            UserModel.authenticate.mockImplementation((username, password, callback) => {
+                callback(null, { _id: 'auth-user-id', username: 'authuser' });
             });
 
             const res = await request(app)
@@ -316,14 +313,16 @@ describe('User API Endpoints', () => {
         });
 
         it('should return 403 for invalid credentials', async () => {
-            // Mock authenticate as a promise that rejects with an error
-            const error = new Error('Incorrect password');
-            UserModel.authenticate.mockRejectedValue(error);
+            UserModel.authenticate.mockImplementation((username, password, callback) => {
+                return callback('Wrong username or password', null);
+            });
 
             const res = await request(app)
                 .post('/user/login')
                 .send({ username: 'wrong', password: 'invalid' });
             
+            console.log('Authentication error response:', res.statusCode, res.body);
+                
             expect(res.statusCode).toBe(403);
             expect(res.body.message).toBe('Wrong username or password');
         });

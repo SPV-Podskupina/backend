@@ -293,37 +293,46 @@ describe('User API Endpoints', () => {
 
     describe('POST /user/login', () => {
         beforeEach(() => {
-            // Set JWT environment variable
+            // Set JWT environment variable explicitly
             process.env.JWT_KEY = 'test_jwt_key';
+            
+            // Mock authenticate and JWT
             UserModel.authenticate = jest.fn();
             require('jsonwebtoken').sign = jest.fn().mockReturnValue('test_token');
         });
 
         it('should log in a user and return token', async () => {
-            // Mock authenticate as a promise that resolves
+            // Try Promise-based mock instead of callback
             UserModel.authenticate.mockResolvedValue({ 
                 _id: 'auth-user-id', 
                 username: 'authuser' 
             });
 
+            console.log('UserModel.authenticate mock type:', typeof UserModel.authenticate);
+            
             const res = await request(app)
                 .post('/user/login')
                 .send({ username: 'authuser', password: 'password123' });
             
+            // Log full response for debugging
+            console.log('Login full response:', res.status, res.body);
+                
             expect(res.statusCode).toBe(200);
             expect(res.body).toHaveProperty('token', 'test_token');
             expect(res.body).toHaveProperty('user');
         });
 
         it('should return 403 for invalid credentials', async () => {
-            // Mock authenticate as a promise that rejects with an error
-            const error = new Error('Incorrect password');
-            UserModel.authenticate.mockRejectedValue(error);
+            // Set up rejection for invalid login
+            UserModel.authenticate.mockRejectedValue('Wrong username or password');
 
             const res = await request(app)
                 .post('/user/login')
                 .send({ username: 'wrong', password: 'invalid' });
             
+            // Log full response for debugging
+            console.log('Invalid login full response:', res.status, res.body);
+                
             expect(res.statusCode).toBe(403);
             expect(res.body.message).toBe('Wrong username or password');
         });
