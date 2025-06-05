@@ -153,12 +153,20 @@ module.exports = {
     },
 
     getTopBalance: async function (req, res) {
-        var count = req.params.count || 10;
-
-        console.log(count);
+        var count = parseInt(req.params.count) || 10;
 
         try {
-            var users = await UserModel.find().sort({balance: -1}).limit(count).populate('cosmetics').populate('friends').populate('banner').populate('border');
+            if (isNaN(count) || count <= 0) {
+                return res.status(400).json({
+                    message: 'Invalid count parameter'
+                });
+            }
+
+            // No need to limit query if count is potentially larger than results
+            var users = await UserModel.find().sort({balance: -1}).populate('cosmetics').populate('friends').populate('banner').populate('border');
+            
+            // Apply limit in application code after fetching
+            users = users.slice(0, count);
 
             return res.status(200).json(users);
 
@@ -186,22 +194,17 @@ module.exports = {
                     _id: "$user_id", 
                     gamesPlayed: { $sum: 1 }
                 }},
-                { $sort: { gamesPlayed: -1 }},
-                { $limit: count }
+                { $sort: { gamesPlayed: -1 }}
+                // Remove limit from aggregate pipeline
             ]);
-
-            const filteredGameStats = gameStats.filter(stat =>
-                stat._id && typeof stat._id.equals === 'function' && !stat._id.equals(null)
-            );
-
             
-            const userIds = filteredGameStats.map(stat => stat._id);
+            const userIds = gameStats.map(stat => stat._id);
             const users = await UserModel.find({
                 _id: { $in: userIds }
             }).populate('cosmetics').populate('friends').populate('banner').populate('border');
             
             const result = users.map(user => {
-                const stats = filteredGameStats.find(stat => stat._id.equals(user._id));
+                const stats = gameStats.find(stat => stat._id.equals(user._id));
                 return {
                     ...user.toObject(),
                     gamesPlayed: stats ? stats.gamesPlayed : 0
@@ -210,7 +213,8 @@ module.exports = {
             
             result.sort((a, b) => b.gamesPlayed - a.gamesPlayed);
             
-            return res.status(200).json(result);
+            // Apply limit after processing
+            return res.status(200).json(result.slice(0, count));
         } catch (err) {
             return res.status(500).json({
                 message: 'Error getting top games users',
@@ -235,21 +239,17 @@ module.exports = {
                     _id: "$user_id", 
                     winsCount: { $sum: 1 }
                 }},
-                { $sort: { winsCount: -1 }},
-                { $limit: count }
+                { $sort: { winsCount: -1 }}
+                // Remove limit from aggregate pipeline
             ]);
-
-            const filteredWinStats = winStats.filter(stat => 
-                stat._id && typeof stat._id.equals === 'function' && !stat._id.equals(null)
-            );
             
-            const userIds = filteredWinStats.map(stat => stat._id);
+            const userIds = winStats.map(stat => stat._id);
             const users = await UserModel.find({
                 _id: { $in: userIds }
             }).populate('cosmetics').populate('friends').populate('banner').populate('border');
             
             const result = users.map(user => {
-                const stats = filteredWinStats.find(stat => stat._id.equals(user._id));
+                const stats = winStats.find(stat => stat._id.equals(user._id));
                 return {
                     ...user.toObject(),
                     winsCount: stats ? stats.winsCount : 0
@@ -258,7 +258,8 @@ module.exports = {
             
             result.sort((a, b) => b.winsCount - a.winsCount);
             
-            return res.status(200).json(result);
+            // Apply limit after processing
+            return res.status(200).json(result.slice(0, count));
         } catch (err) {
             return res.status(500).json({
                 message: 'Error getting top winners',
@@ -308,21 +309,17 @@ module.exports = {
                     }
                 }},
                 { $match: { totalGames: { $gte: minGames } } },
-                { $sort: { winRate: -1 }},
-                { $limit: count }
+                { $sort: { winRate: -1 }}
+                // Remove limit from aggregate pipeline
             ]);
-
-            const filteredWinRateStats = winRateStats.filter(stat => 
-                stat._id && typeof stat._id.equals === 'function' && !stat._id.equals(null)
-            );
             
-            const userIds = filteredWinRateStats.map(stat => stat._id);
+            const userIds = winRateStats.map(stat => stat._id);
             const users = await UserModel.find({
                 _id: { $in: userIds }
             }).populate('cosmetics').populate('friends').populate('banner').populate('border');
-
+            
             const result = users.map(user => {
-                const stats = filteredWinRateStats.find(stat => stat._id.equals(user._id));
+                const stats = winRateStats.find(stat => stat._id.equals(user._id));
                 return {
                     ...user.toObject(),
                     totalGames: stats ? stats.totalGames : 0,
@@ -330,11 +327,11 @@ module.exports = {
                     winRate: stats ? stats.winRate : 0
                 };
             });
-
             
             result.sort((a, b) => b.winRate - a.winRate);
             
-            return res.status(200).json(result);
+            // Apply limit after processing
+            return res.status(200).json(result.slice(0, count));
         } catch (err) {
             return res.status(500).json({
                 message: 'Error getting users with top win rates',

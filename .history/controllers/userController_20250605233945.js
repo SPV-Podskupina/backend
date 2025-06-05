@@ -190,18 +190,15 @@ module.exports = {
                 { $limit: count }
             ]);
 
-            const filteredGameStats = gameStats.filter(stat =>
-                stat._id && typeof stat._id.equals === 'function' && !stat._id.equals(null)
-            );
-
             
-            const userIds = filteredGameStats.map(stat => stat._id);
+            
+            const userIds = gameStats.map(stat => stat._id);
             const users = await UserModel.find({
                 _id: { $in: userIds }
             }).populate('cosmetics').populate('friends').populate('banner').populate('border');
             
             const result = users.map(user => {
-                const stats = filteredGameStats.find(stat => stat._id.equals(user._id));
+                const stats = gameStats.find(stat => stat._id.equals(user._id));
                 return {
                     ...user.toObject(),
                     gamesPlayed: stats ? stats.gamesPlayed : 0
@@ -312,6 +309,8 @@ module.exports = {
                 { $limit: count }
             ]);
 
+            console.log(winRateStats);
+
             const filteredWinRateStats = winRateStats.filter(stat => 
                 stat._id && typeof stat._id.equals === 'function' && !stat._id.equals(null)
             );
@@ -320,6 +319,9 @@ module.exports = {
             const users = await UserModel.find({
                 _id: { $in: userIds }
             }).populate('cosmetics').populate('friends').populate('banner').populate('border');
+            
+            console.log(users);
+
 
             const result = users.map(user => {
                 const stats = filteredWinRateStats.find(stat => stat._id.equals(user._id));
